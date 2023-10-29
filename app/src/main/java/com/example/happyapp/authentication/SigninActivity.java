@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.happyapp.R;
 
 public class SigninActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener {
-    private TextView signupButton;
+    private TextView signupButton, forgotPassword;
     private EditText password;
     private boolean passwordVisible;
     @Override
@@ -23,15 +23,21 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_signin);
 
         signupButton = findViewById(R.id.signupButton);
+        forgotPassword = findViewById(R.id.forgotPassword);
         password = findViewById(R.id.password);
 
         signupButton.setOnClickListener(this);
+        forgotPassword.setOnClickListener(this);
         password.setOnTouchListener(this);
     }
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.signupButton) {
             Intent intent = new Intent(SigninActivity.this, SignupActivity.class);
+            startActivity(intent);
+        }
+        if (v.getId() == R.id.forgotPassword) {
+            Intent intent = new Intent(SigninActivity.this, FillEmailForgotPasswordActivity.class);
             startActivity(intent);
         }
     }
