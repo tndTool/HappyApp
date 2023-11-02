@@ -17,7 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    public static int main = 0x7f030004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

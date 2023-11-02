@@ -1,13 +1,15 @@
-const express = require("express");
-const User = require("../models/user.js");
 const cron = require("node-cron");
+const express = require("express");
 const nodemailer = require("nodemailer");
+const User = require("../models/user.js");
 
 const router = express.Router();
 
 function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
+
+// Setup nodemailer
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -34,7 +36,6 @@ const verificationCleanupScheduler = cron.schedule("*/10 * * * *", async () => {
   }
 });
 
-// Start the scheduler
 verificationCleanupScheduler.start();
 
 // Register
@@ -51,7 +52,6 @@ router.post("/api/register", async (req, res) => {
     }
 
     if (existingUser && !existingUser.isVerified) {
-      // If the user exists but is not verified, update the OTP
       const otp = generateOTP();
       existingUser.otp = otp;
       await existingUser.save();
@@ -61,10 +61,10 @@ router.post("/api/register", async (req, res) => {
         to: email,
         subject: "Account Verification",
         html: `
-          <h1>Welcome back to Happy App!</h1>
+          <h1>Welcome to Happy App!</h1>
           <p>Thank you for registering an account with us.</p>
-          <p>Please use the updated verification code below to complete your account setup:</p>
-          <h2 style="color: #ff0000;">Updated Verification Code: ${otp}</h2>
+          <p>Please use the verification code below to complete your account setup:</p>
+          <h2 style="color: #ff0000;">OTP: ${otp}</h2>
           <p>If you did not sign up for an account, please ignore this email.</p>
           <p>Best regards,</p>
           <p>The Happy App Team</p>
@@ -105,10 +105,10 @@ router.post("/api/register", async (req, res) => {
       to: email,
       subject: "Account Verification",
       html: `
-      <h1>Welcome back to Happy App!</h1>
+      <h1>Welcome to Happy App!</h1>
       <p>Thank you for registering an account with us.</p>
-      <p>Please use the updated verification code below to complete your account setup:</p>
-      <h2 style="color: #ff0000;">Updated Verification Code: ${otp}</h2>
+      <p>Please use the verification code below to complete your account setup:</p>
+      <h2 style="color: #ff0000;">OTP: ${otp}</h2>
       <p>If you did not sign up for an account, please ignore this email.</p>
       <p>Best regards,</p>
       <p>The Happy App Team</p>
@@ -160,7 +160,9 @@ router.post("/api/login", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: "User not found." });
+      return res
+        .status(404)
+        .json({ success: false, error: "Invalid password or username." });
     }
 
     if (!user.isVerified) {
@@ -172,7 +174,7 @@ router.post("/api/login", async (req, res) => {
     if (user.password !== password) {
       return res
         .status(401)
-        .json({ success: false, error: "Invalid password." });
+        .json({ success: false, error: "Invalid password or username." });
     }
 
     res.status(200).json({ success: true, message: "Login successful." });
@@ -187,7 +189,7 @@ router.post("/api/forgotpassword/sendotp", async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ success: false, error: "User not found." });
@@ -195,7 +197,7 @@ router.post("/api/forgotpassword/sendotp", async (req, res) => {
 
     const otp = generateOTP();
 
-    user.resetPasswordOTP = otp;
+    user.otp = otp;
     await user.save();
 
     const mailOptions = {
@@ -231,12 +233,10 @@ router.post("/api/forgotpassword/verifyotp", async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email, resetPasswordOTP: otp });
+    const user = await User.findOne({ email, otp });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Invalid email or OTP." });
+      return res.status(404).json({ success: false, error: "Invalid OTP." });
     }
 
     res
@@ -257,8 +257,14 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
       return res.status(404).json({ success: false, error: "Invalid email." });
     }
 
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: "Password should be at least 8 characters long.",
+      });
+    }
+
     user.password = newPassword;
-    user.resetPasswordOTP = null;
     await user.save();
 
     res

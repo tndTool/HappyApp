@@ -58,19 +58,16 @@
                 android:textColor="@color/white"
                 android:textSize="18sp" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="30dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:layout_marginTop="30dp"
                 android:text="name"
                 android:textAllCaps="true"
                 android:textColor="@color/white" />
 
             <EditText
+                android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -82,19 +79,16 @@
                 android:paddingEnd="20dp"
                 android:textSize="18sp" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="20dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:layout_marginTop="20dp"
                 android:text="email"
                 android:textAllCaps="true"
                 android:textColor="@color/white" />
 
             <EditText
+                android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -106,13 +100,10 @@
                 android:paddingEnd="20dp"
                 android:textSize="18sp" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="20dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="password"
                 android:textAllCaps="true"
                 android:textColor="@color/white" />
@@ -132,13 +123,10 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="20dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="confirm password"
                 android:textAllCaps="true"
                 android:textColor="@color/white" />
@@ -158,13 +146,11 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="30dp" />
-
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/signupButton"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginBottom="20dp"
                 android:text="sign up"
                 android:textAllCaps="true" />
