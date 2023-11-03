@@ -23,20 +23,20 @@ const transporter = nodemailer.createTransport({
 });
 
 // Define the scheduler logic
-const verificationCleanupScheduler = cron.schedule("*/10 * * * *", async () => {
-  try {
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-    await User.deleteMany({
-      isVerified: false,
-      createdAt: { $lt: tenMinutesAgo },
-    });
-    console.log("Verification cleanup successful.");
-  } catch (error) {
-    console.error("Failed to perform verification cleanup:", error);
-  }
-});
+// const verificationCleanupScheduler = cron.schedule("*/10 * * * *", async () => {
+//   try {
+//     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+//     await User.deleteMany({
+//       isVerified: false,
+//       createdAt: { $lt: tenMinutesAgo },
+//     });
+//     console.log("Verification cleanup successful.");
+//   } catch (error) {
+//     console.error("Failed to perform verification cleanup:", error);
+//   }
+// });
 
-verificationCleanupScheduler.start();
+// verificationCleanupScheduler.start();
 
 // Register
 router.post("/api/register", async (req, res) => {
@@ -76,7 +76,7 @@ router.post("/api/register", async (req, res) => {
       return res.status(200).json({
         success: true,
         message:
-          "Verification code updated. Please check your email for the updated code.",
+          "Verification code sent. Please check your email for the verify code.",
       });
     }
 
@@ -249,7 +249,7 @@ router.post("/api/forgotpassword/verifyotp", async (req, res) => {
 
 router.post("/api/forgotpassword/resetpassword", async (req, res) => {
   try {
-    const { email, newPassword } = req.body;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -257,14 +257,14 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
       return res.status(404).json({ success: false, error: "Invalid email." });
     }
 
-    if (newPassword.length < 8) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
         error: "Password should be at least 8 characters long.",
       });
     }
 
-    user.password = newPassword;
+    user.password = password;
     await user.save();
 
     res
