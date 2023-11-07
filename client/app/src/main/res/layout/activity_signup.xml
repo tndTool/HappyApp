@@ -73,7 +73,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/content_authentication"
                 android:ems="10"
-                android:inputType="textEmailAddress"
+                android:inputType="text"
                 android:padding="12dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"

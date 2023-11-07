@@ -150,4 +150,14 @@ public class ApiHelper {
 
         client.newCall(request).enqueue(callback);
     }
+    public static void getUserInfo(String email, Callback callback) {
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(BASE_URL + "user/" + email)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
 }

@@ -303,4 +303,28 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
   }
 });
 
+// Get player info
+
+router.get("/api/user/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userInfo = {
+      name: user.name,
+      email: user.email,
+      joinDate: user.createdAt,
+    };
+
+    res.status(200).json(userInfo);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve user information" });
+  }
+});
+
 module.exports = router;

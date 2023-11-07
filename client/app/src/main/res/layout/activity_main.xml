@@ -39,7 +39,7 @@
         android:src="@drawable/add_icon"
         app:layout_anchor="@id/bottomAppBar"
         app:maxImageSize="40dp"
-        android:id="@+id/fab"
+        android:id="@+id/cameraButton"
         app:tint="@color/primary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

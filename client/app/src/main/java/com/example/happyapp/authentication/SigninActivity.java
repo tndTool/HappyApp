@@ -102,6 +102,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
                                                 Toasty.success(SigninActivity.this, "Login successful.", Toast.LENGTH_SHORT).show();
                                                 // Redirect to the main activity or perform any other necessary action
                                                 Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+                                                intent.putExtra("email", email);
                                                 startActivity(intent);
                                                 finish();
                                             }

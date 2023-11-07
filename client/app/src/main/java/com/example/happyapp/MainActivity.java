@@ -17,12 +17,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userEmail = getIntent().getStringExtra("email");
 
         replaceFragment(new HomeFragment());
         binding.bottomNavigationView.setBackground(null);
@@ -33,13 +36,18 @@ public class MainActivity extends AppCompatActivity {
                 if (item.getItemId() == R.id.home) {
                     replaceFragment(new HomeFragment());
                 } else if (item.getItemId() == R.id.profile) {
-                    replaceFragment(new ProfileFragment());
+                    ProfileFragment profileFragment = new ProfileFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("email", userEmail);
+                    profileFragment.setArguments(bundle);
+                    replaceFragment(profileFragment);
                 }
                 return true;
             }
         });
 
     }
+
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
