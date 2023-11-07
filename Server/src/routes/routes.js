@@ -1,4 +1,3 @@
-const cron = require("node-cron");
 const express = require("express");
 const nodemailer = require("nodemailer");
 const User = require("../models/user.js");
@@ -22,22 +21,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Define the scheduler logic
-// const verificationCleanupScheduler = cron.schedule("*/10 * * * *", async () => {
-//   try {
-//     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-//     await User.deleteMany({
-//       isVerified: false,
-//       createdAt: { $lt: tenMinutesAgo },
-//     });
-//     console.log("Verification cleanup successful.");
-//   } catch (error) {
-//     console.error("Failed to perform verification cleanup:", error);
-//   }
-// });
-
-// verificationCleanupScheduler.start();
-
 // Register
 router.post("/api/register", async (req, res) => {
   try {
@@ -51,9 +34,19 @@ router.post("/api/register", async (req, res) => {
         .json({ success: false, error: "Email already exists." });
     }
 
+    const { name, password } = req.body;
+
+    if (password.length < 8 || password.length > 16) {
+      return res.status(400).json({
+        success: false,
+        error: "Password should be between 8 and 16 characters long.",
+      });
+    }
+
     if (existingUser && !existingUser.isVerified) {
-      const otp = generateOTP();
-      existingUser.otp = otp;
+      existingUser.name = name;
+      existingUser.password = password;
+      existingUser.otp = generateOTP();
       await existingUser.save();
 
       const mailOptions = {
@@ -64,7 +57,7 @@ router.post("/api/register", async (req, res) => {
           <h1>Welcome to Happy App!</h1>
           <p>Thank you for registering an account with us.</p>
           <p>Please use the verification code below to complete your account setup:</p>
-          <h2 style="color: #ff0000;">OTP: ${otp}</h2>
+          <h2 style="color: #ff0000;">OTP: ${existingUser.otp}</h2>
           <p>If you did not sign up for an account, please ignore this email.</p>
           <p>Best regards,</p>
           <p>The Happy App Team</p>
@@ -77,15 +70,6 @@ router.post("/api/register", async (req, res) => {
         success: true,
         message:
           "Verification code sent. Please check your email for the verify code.",
-      });
-    }
-
-    const { name, password } = req.body;
-
-    if (password.length < 8) {
-      return res.status(400).json({
-        success: false,
-        error: "Password should be at least 8 characters long.",
       });
     }
 
@@ -134,9 +118,7 @@ router.post("/api/verify", async (req, res) => {
     const user = await User.findOne({ email, otp });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Invalid email or OTP." });
+      return res.status(404).json({ success: false, error: "Invalid OTP." });
     }
 
     user.isVerified = true;
@@ -148,6 +130,50 @@ router.post("/api/verify", async (req, res) => {
       .json({ success: true, message: "Email verified successfully." });
   } catch (error) {
     res.status(500).json({ success: false, error: "Failed to verify email." });
+  }
+});
+
+router.post("/api/resendOtp", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found." });
+    }
+
+    const otp = generateOTP();
+
+    user.otp = otp;
+    await user.save();
+
+    const mailOptions = {
+      to: email,
+      from: {
+        name: "Happy App",
+        email: process.env.EMAIL_FROM,
+      },
+      subject: "Account Verification",
+      html: `
+      <h1>Welcome to Happy App!</h1>
+      <p>Thank you for registering an account with us.</p>
+      <p>Please use the verification code below to complete your account setup:</p>
+      <h2 style="color: #ff0000;">OTP: ${otp}</h2>
+      <p>If you did not sign up for an account, please ignore this email.</p>
+      <p>Best regards,</p>
+      <p>The Happy App Team</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully. Please check your email.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Failed to send OTP." });
   }
 });
 
@@ -168,7 +194,7 @@ router.post("/api/login", async (req, res) => {
     if (!user.isVerified) {
       return res
         .status(401)
-        .json({ success: false, error: "Email not verified." });
+        .json({ success: false, error: "Invalid password or username." });
     }
 
     if (user.password !== password) {
@@ -257,10 +283,10 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
       return res.status(404).json({ success: false, error: "Invalid email." });
     }
 
-    if (password.length < 8) {
+    if (password.length < 8 || password.length > 16) {
       return res.status(400).json({
         success: false,
-        error: "Password should be at least 8 characters long.",
+        error: "Password should be between 8 and 16 characters long.",
       });
     }
 

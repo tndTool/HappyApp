@@ -3,6 +3,7 @@ package com.example.happyapp.authentication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.MotionEvent;
@@ -69,6 +70,16 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
             // Retrieve the email and password
             String email = emailEditText.getText().toString();
             String password = passwordEditText.getText().toString();
+
+            if (TextUtils.isEmpty(email)) {
+                emailEditText.setError("Email is required");
+                return;
+            }
+
+            if (TextUtils.isEmpty(password)) {
+                passwordEditText.setError("Password is required");
+                return;
+            }
 
             loadingDialog.show();
 
@@ -139,7 +150,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     });
                 }
-            }, 1000);
+            }, 500);
         }
     }
 
