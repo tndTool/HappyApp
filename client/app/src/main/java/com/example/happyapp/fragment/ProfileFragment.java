@@ -5,36 +5,33 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.happyapp.R;
-import com.example.happyapp.api.ApiHelper;
+import com.example.happyapp.authentication.SigninActivity;
+import com.example.happyapp.dialog.LoadingDialog;
+import com.example.happyapp.model.User;
 import com.example.happyapp.profile.AboutUsActivity;
 import com.example.happyapp.profile.FAQsActivity;
 import com.example.happyapp.profile.NotificationSettingActivity;
 import com.example.happyapp.profile.PrivacySettingActivity;
 import com.example.happyapp.profile.ProfileSettingActivity;
 import com.example.happyapp.profile.SendUsActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-
-import es.dmoral.toasty.Toasty;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import com.example.happyapp.viewmodal.UserViewModel;
 
 public class ProfileFragment extends Fragment {
 
     private TextView nameText;
     private TextView mailText;
-    private String userEmail;
+    private Button logoutButton;
+    private UserViewModel userViewModel;
+    private LoadingDialog loadingDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,11 +40,29 @@ public class ProfileFragment extends Fragment {
 
         nameText = rootView.findViewById(R.id.nameText);
         mailText = rootView.findViewById(R.id.mailText);
+        logoutButton = rootView.findViewById(R.id.logoutButton);
+        loadingDialog = new LoadingDialog(getActivity());
+
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            userEmail = bundle.getString("email");
+            String userEmail = bundle.getString("email");
+            if (userEmail != null) {
+                loadingDialog.show();
+                userViewModel.fetchUserInfo(userEmail);
+            }
         }
+
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                nameText.setText(user.getName());
+                mailText.setText(user.getEmail());
+                loadingDialog.dismiss();
+            }
+        });
 
         RelativeLayout profileSetting = rootView.findViewById(R.id.profileSetting);
         RelativeLayout notificationSetting = rootView.findViewById(R.id.notificationSetting);
@@ -55,6 +70,15 @@ public class ProfileFragment extends Fragment {
         RelativeLayout sendUs = rootView.findViewById(R.id.sendUsSetting);
         RelativeLayout aboutUs = rootView.findViewById(R.id.aboutUsSetting);
         RelativeLayout faqs = rootView.findViewById(R.id.faqsSetting);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SigninActivity.class);
+                startActivity(intent);
+                requireActivity().finish();
+            }
+        });
 
         View.OnClickListener settingsClickListener = new View.OnClickListener() {
             @Override
@@ -88,47 +112,6 @@ public class ProfileFragment extends Fragment {
         sendUs.setOnClickListener(settingsClickListener);
         aboutUs.setOnClickListener(settingsClickListener);
         faqs.setOnClickListener(settingsClickListener);
-
-        ApiHelper.getUserInfo(userEmail, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toasty.error(getActivity(), "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    final String responseData = response.body().string();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                JSONObject userJson = new JSONObject(responseData);
-                                String name = userJson.getString("name");
-                                String email = userJson.getString("email");
-
-                                nameText.setText(name);
-                                mailText.setText(email);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                } else {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toasty.error(getActivity(), "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        });
 
         return rootView;
     }

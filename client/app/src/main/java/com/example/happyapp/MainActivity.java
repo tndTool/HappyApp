@@ -1,5 +1,8 @@
 package com.example.happyapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -8,15 +11,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.happyapp.authentication.SigninActivity;
 import com.example.happyapp.databinding.ActivityMainBinding;
 import com.example.happyapp.fragment.HomeFragment;
 import com.example.happyapp.fragment.ProfileFragment;
+import com.example.happyapp.viewmodal.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private UserViewModel userViewModel;
     private String userEmail;
 
     @Override
@@ -26,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         userEmail = getIntent().getStringExtra("email");
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         replaceFragment(new HomeFragment());
         binding.bottomNavigationView.setBackground(null);
@@ -37,17 +45,15 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomeFragment());
                 } else if (item.getItemId() == R.id.profile) {
                     ProfileFragment profileFragment = new ProfileFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("email", userEmail);
-                    profileFragment.setArguments(bundle);
+
+                    userViewModel.fetchUserInfo(userEmail);
+
                     replaceFragment(profileFragment);
                 }
                 return true;
             }
         });
-
     }
-
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -55,4 +61,5 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
+
 }

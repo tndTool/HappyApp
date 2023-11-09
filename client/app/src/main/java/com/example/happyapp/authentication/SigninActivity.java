@@ -67,7 +67,6 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
             startActivity(intent);
         }
         if (v.getId() == R.id.loginButton) {
-            // Retrieve the email and password
             String email = emailEditText.getText().toString();
             String password = passwordEditText.getText().toString();
 
@@ -89,9 +88,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
                     ApiHelper.loginUser(email, password, new Callback() {
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
-                            // Handle the login response
                             if (response.isSuccessful()) {
-                                // Parse the response JSON
                                 try {
                                     JSONObject jsonResponse = new JSONObject(response.body().string());
                                     boolean success = jsonResponse.getBoolean("success");
@@ -100,7 +97,6 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
                                             @Override
                                             public void run() {
                                                 Toasty.success(SigninActivity.this, "Login successful.", Toast.LENGTH_SHORT).show();
-                                                // Redirect to the main activity or perform any other necessary action
                                                 Intent intent = new Intent(SigninActivity.this, MainActivity.class);
                                                 intent.putExtra("email", email);
                                                 startActivity(intent);
@@ -137,6 +133,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
 
                             loadingDialog.dismiss();
                         }
+
                         @Override
                         public void onFailure(Call call, IOException e) {
                             // Handle the login failure or network error
@@ -154,6 +151,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
             }, 500);
         }
     }
+
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
