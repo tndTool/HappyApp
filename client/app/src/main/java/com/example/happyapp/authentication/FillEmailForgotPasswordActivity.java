@@ -50,9 +50,7 @@ public class FillEmailForgotPasswordActivity extends AppCompatActivity implement
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
-            Intent intent = new Intent(FillEmailForgotPasswordActivity.this, SigninActivity.class);
-            startActivity(intent);
-            finish();
+            onBackPressed();
         }
         if (v.getId() == R.id.send) {
             String emailText = email.getText().toString();

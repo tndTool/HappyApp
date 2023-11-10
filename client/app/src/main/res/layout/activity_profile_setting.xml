@@ -3,13 +3,172 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:orientation="vertical"
     tools:context=".profile.ProfileSettingActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="profile"
-        android:textSize="16sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:orientation="horizontal">
 
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:adjustViewBounds="true"
+            android:background="@color/primary"
+            android:scaleType="fitCenter"
+            android:src="@drawable/back_button_icon" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:src="@drawable/default_avatar" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/round_bg_secondary"
+                android:orientation="vertical"
+                android:padding="15dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/nameIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/circle_bg_profile"
+                        android:padding="10dp"
+                        android:src="@drawable/profile_icon" />
+
+                    <TextView
+                        android:id="@+id/nameText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_toEndOf="@+id/nameIcon"
+                        android:text="Name"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/edit_icon" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <ImageView
+                        android:id="@+id/emailIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/circle_bg_profile"
+                        android:padding="10dp"
+                        android:src="@drawable/email_icon" />
+
+                    <TextView
+                        android:id="@+id/emailText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_toEndOf="@+id/emailIcon"
+                        android:text="Email"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <ImageView
+                        android:id="@+id/timeCreatedIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/circle_bg_profile"
+                        android:padding="10dp"
+                        android:src="@drawable/time_icon" />
+
+                    <TextView
+                        android:id="@+id/timeJoin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_toEndOf="@+id/timeCreatedIcon"
+                        android:text="Joining Date"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/changePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <ImageView
+                        android:id="@+id/passwordIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/circle_bg_profile"
+                        android:padding="10dp"
+                        android:src="@drawable/security_privacy_icon" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_toEndOf="@+id/passwordIcon"
+                        android:text="Change Password"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/editIcon"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/edit_icon" />
+                </RelativeLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

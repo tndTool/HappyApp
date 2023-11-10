@@ -129,9 +129,7 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
-            Intent intent = new Intent(VerifyOtpSignupActivity.this, SignupActivity.class);
-            startActivity(intent);
-            finish();
+            onBackPressed();
         }
         if (v.getId() == R.id.resend) {
             otpBox1.setText("");

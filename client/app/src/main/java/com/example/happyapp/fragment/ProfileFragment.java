@@ -1,5 +1,7 @@
 package com.example.happyapp.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -74,9 +76,26 @@ public class ProfileFragment extends Fragment {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SigninActivity.class);
-                startActivity(intent);
-                requireActivity().finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Confirmation")
+                        .setMessage("Are you sure you want to log out?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "Yes" - proceed with logout
+                                Intent intent = new Intent(getActivity(), SigninActivity.class);
+                                startActivity(intent);
+                                requireActivity().finish();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "No" - do nothing
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -86,7 +105,11 @@ public class ProfileFragment extends Fragment {
                 Class<?> targetActivity = null;
 
                 if (view.getId() == R.id.profileSetting) {
-                    targetActivity = ProfileSettingActivity.class;
+                    Intent intent = new Intent(getActivity(), ProfileSettingActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("email", mailText.getText().toString());
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 } else if (view.getId() == R.id.notificationSetting) {
                     targetActivity = NotificationSettingActivity.class;
                 } else if (view.getId() == R.id.privacySetting) {

@@ -128,9 +128,7 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
-            Intent intent = new Intent(VerifyOtpForgotPasswordActivity.this, FillEmailForgotPasswordActivity.class);
-            startActivity(intent);
-            finish();
+            onBackPressed();
         }
         if (v.getId() == R.id.resend) {
             otpBox1.setText("");

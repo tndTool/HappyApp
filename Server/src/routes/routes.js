@@ -328,3 +328,27 @@ router.get("/api/user/:email", async (req, res) => {
 });
 
 module.exports = router;
+
+// Change name:
+
+router.put("/api/users/change-name", async (req, res) => {
+  try {
+    const { email, name } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's name
+    user.name = name;
+    await user.save();
+
+    res.status(200).json({ message: "Name changed successfully", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+});

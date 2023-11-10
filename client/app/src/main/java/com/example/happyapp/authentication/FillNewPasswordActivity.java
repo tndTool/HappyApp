@@ -60,9 +60,7 @@ public class FillNewPasswordActivity extends AppCompatActivity implements View.O
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
-            Intent intent = new Intent(FillNewPasswordActivity.this, FillEmailForgotPasswordActivity.class);
-            startActivity(intent);
-            finish();
+            onBackPressed();
         }
         if (v.getId() == R.id.submit) {
             String passwordText = password.getText().toString();

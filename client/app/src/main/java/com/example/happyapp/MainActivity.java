@@ -1,8 +1,5 @@
 package com.example.happyapp;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,7 +10,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.happyapp.authentication.SigninActivity;
 import com.example.happyapp.databinding.ActivityMainBinding;
 import com.example.happyapp.fragment.HomeFragment;
 import com.example.happyapp.fragment.ProfileFragment;
@@ -54,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
