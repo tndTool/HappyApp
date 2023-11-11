@@ -3,7 +3,6 @@ package com.example.happyapp.authentication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -129,6 +128,7 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
             onBackPressed();
+            finish();
         }
         if (v.getId() == R.id.resend) {
             otpBox1.setText("");
@@ -145,60 +145,55 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
                     long secondsRemaining = millisUntilFinished / 1000;
                     resendButton.setText("Resend in " + secondsRemaining + "s");
                 }
+
                 @Override
                 public void onFinish() {
-                    // Enable the resend button and update the text
                     resendButton.setEnabled(true);
                     resendButton.setText("Resend");
                 }
             }.start();
 
             loadingDialog.show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ApiHelper.sendEmailFP(email, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            // Handle the registration success response
-                            if (response.isSuccessful()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toasty.success(VerifyOtpForgotPasswordActivity.this, "Resend OTP successfully!", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            JSONObject errorResponse = new JSONObject(response.body().string());
-                                            String errorMessage = errorResponse.getString("error");
-                                            Toasty.error(VerifyOtpForgotPasswordActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException | IOException e) {
-                                            e.printStackTrace();
-                                            Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            }
-                            loadingDialog.dismiss();
-                        }
 
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+            ApiHelper.sendEmailFP(email, new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toasty.success(VerifyOtpForgotPasswordActivity.this, "Resend OTP successfully!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(VerifyOtpForgotPasswordActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
                                     Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            loadingDialog.dismiss();
+                            }
+                        });
+                    }
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    loadingDialog.dismiss();
                 }
-            }, 500);
+            });
         }
         if (v.getId() == R.id.submit) {
             String otp1Text = otpBox1.getText().toString();
@@ -209,56 +204,49 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
             String otpText = otp1Text + otp2Text + otp3Text + otp4Text;
 
             loadingDialog.show();
-            new Handler().postDelayed(new Runnable() {
+            ApiHelper.verifyOTPFP(email, otpText, new Callback() {
                 @Override
-                public void run() {
-                    ApiHelper.verifyOTPFP(email, otpText, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            // Handle the registration success response
-                            if (response.isSuccessful()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toasty.success(VerifyOtpForgotPasswordActivity.this, "Verify OTP successfully!", Toast.LENGTH_SHORT).show();
-                                        // Redirect to the main activity or perform any other necessary action
-                                        Intent intent = new Intent(VerifyOtpForgotPasswordActivity.this, FillNewPasswordActivity.class);
-                                        intent.putExtra("email", email);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            JSONObject errorResponse = new JSONObject(response.body().string());
-                                            String errorMessage = errorResponse.getString("error");
-                                            Toasty.error(VerifyOtpForgotPasswordActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException | IOException e) {
-                                            e.printStackTrace();
-                                            Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to verify OTP.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toasty.success(VerifyOtpForgotPasswordActivity.this, "Verify OTP successfully!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(VerifyOtpForgotPasswordActivity.this, FillNewPasswordActivity.class);
+                                intent.putExtra("email", email);
+                                startActivity(intent);
+                                finish();
                             }
-                            loadingDialog.dismiss();
-                        }
-
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(VerifyOtpForgotPasswordActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
                                     Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to verify OTP.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            loadingDialog.dismiss();
+                            }
+                        });
+                    }
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(VerifyOtpForgotPasswordActivity.this, "Failed to verify OTP.", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    loadingDialog.dismiss();
                 }
-            }, 500);
+            });
         }
     }
 }

@@ -2,7 +2,6 @@ package com.example.happyapp.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -60,6 +59,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
             onBackPressed();
+            finish();
         }
         if (v.getId() == R.id.signupButton) {
             String nameText = name.getText().toString();
@@ -83,54 +83,50 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             loadingDialog.show();
 
             if (passwordText.equals(confirmPasswordText)) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        ApiHelper.registerUser(nameText, emailText, passwordText, new Callback() {
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                if (response.isSuccessful()) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toasty.info(SignupActivity.this, "Please verify otp from your mail!", Toast.LENGTH_SHORT).show();
-                                            Intent intent = new Intent(SignupActivity.this, VerifyOtpSignupActivity.class);
-                                            intent.putExtra("email", emailText);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    });
-                                } else {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                JSONObject errorResponse = new JSONObject(response.body().string());
-                                                String errorMessage = errorResponse.getString("error");
-                                                Toasty.error(SignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                            } catch (JSONException | IOException e) {
-                                                e.printStackTrace();
-                                                Toasty.error(SignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                                }
-                                loadingDialog.dismiss();
-                            }
 
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
+                ApiHelper.registerUser(nameText, emailText, passwordText, new Callback() {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toasty.info(SignupActivity.this, "Please verify otp from your mail!", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(SignupActivity.this, VerifyOtpSignupActivity.class);
+                                    intent.putExtra("email", emailText);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        JSONObject errorResponse = new JSONObject(response.body().string());
+                                        String errorMessage = errorResponse.getString("error");
+                                        Toasty.error(SignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                    } catch (JSONException | IOException e) {
+                                        e.printStackTrace();
                                         Toasty.error(SignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
                                     }
-                                });
-                                loadingDialog.dismiss();
+                                }
+                            });
+                        }
+                        loadingDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toasty.error(SignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
                             }
                         });
+                        loadingDialog.dismiss();
                     }
-                }, 500);
+                });
             } else {
                 Toasty.error(SignupActivity.this, "Password does not match!", Toast.LENGTH_SHORT).show();
             }

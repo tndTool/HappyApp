@@ -10,7 +10,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    private static final String BASE_URL = "http://192.168.1.24:5000/api/";
+    private static final String BASE_URL = "http://192.168.1.20:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
         JSONObject requestBody = new JSONObject();
@@ -156,6 +156,44 @@ public class ApiHelper {
         Request request = new Request.Builder()
                 .url(BASE_URL + "user/" + email)
                 .get()
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+    public static void changeName(String email, String name, Callback callback) {
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("email", email);
+            requestBody.put("name", name);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
+
+        Request request = new Request.Builder()
+                .url(BASE_URL + "user/changename")
+                .put(body)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+    public static void changePassword(String email, String password, Callback callback) {
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("email", email);
+            requestBody.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
+
+        Request request = new Request.Builder()
+                .url(BASE_URL + "user/changepassword")
+                .post(body)
                 .build();
 
         client.newCall(request).enqueue(callback);

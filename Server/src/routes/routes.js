@@ -8,8 +8,7 @@ function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-// Setup nodemailer
-
+// Setup nodemailer:
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: ["smtp.gmail.com", "smtp.mailinator.com", "smtp.yopmail.com"],
@@ -21,7 +20,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Register
+// Register:
 router.post("/api/register", async (req, res) => {
   try {
     const { email } = req.body;
@@ -35,6 +34,13 @@ router.post("/api/register", async (req, res) => {
     }
 
     const { name, password } = req.body;
+
+    if (name.length > 30) {
+      return res.status(400).json({
+        success: false,
+        error: "Name should be less than 30 characters.",
+      });
+    }
 
     if (password.length < 8 || password.length > 16) {
       return res.status(400).json({
@@ -177,8 +183,7 @@ router.post("/api/resendOtp", async (req, res) => {
   }
 });
 
-// Login
-
+// Login:
 router.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -209,8 +214,7 @@ router.post("/api/login", async (req, res) => {
   }
 });
 
-// Forgot password
-
+// Forgot password:
 router.post("/api/forgotpassword/sendotp", async (req, res) => {
   try {
     const { email } = req.body;
@@ -303,8 +307,7 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
   }
 });
 
-// Get player info
-
+// Get player info:
 router.get("/api/user/:email", async (req, res) => {
   try {
     const email = req.params.email;
@@ -330,19 +333,23 @@ router.get("/api/user/:email", async (req, res) => {
 module.exports = router;
 
 // Change name:
-
-router.put("/api/users/change-name", async (req, res) => {
+router.put("/api/user/changename", async (req, res) => {
   try {
     const { email, name } = req.body;
 
-    // Find the user by email
     const user = await User.findOne({ email });
+
+    if (name.length > 30) {
+      return res.status(400).json({
+        success: false,
+        error: "Name should be less than 30 characters.",
+      });
+    }
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update the user's name
     user.name = name;
     await user.save();
 
@@ -350,5 +357,36 @@ router.put("/api/users/change-name", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Change password:
+router.post("/api/user/changepassword", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "Invalid email." });
+    }
+
+    if (password.length < 8 || password.length > 16) {
+      return res.status(400).json({
+        success: false,
+        error: "Password should be between 8 and 16 characters long.",
+      });
+    }
+
+    user.password = password;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password change successfully." });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to change password." });
   }
 });

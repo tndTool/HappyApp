@@ -3,7 +3,9 @@ package com.example.happyapp.fragment;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ public class ProfileFragment extends Fragment {
     private Button logoutButton;
     private UserViewModel userViewModel;
     private LoadingDialog loadingDialog;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,15 +49,13 @@ public class ProfileFragment extends Fragment {
         loadingDialog = new LoadingDialog(getActivity());
 
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
+        String userEmail = getEmailFromSharedPreferences();
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            String userEmail = bundle.getString("email");
-            if (userEmail != null) {
-                loadingDialog.show();
-                userViewModel.fetchUserInfo(userEmail);
-            }
+        if (!userEmail.isEmpty()) {
+            loadingDialog.show();
+            userViewModel.fetchUserInfo(userEmail);
         }
 
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
@@ -82,16 +83,19 @@ public class ProfileFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "Yes" - proceed with logout
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putBoolean("isLoggedIn", false);
+                                editor.remove("email");
+                                editor.apply();
+
                                 Intent intent = new Intent(getActivity(), SigninActivity.class);
                                 startActivity(intent);
-                                requireActivity().finish();
+                                getActivity().finish();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "No" - do nothing
                                 dialogInterface.dismiss();
                             }
                         })
@@ -105,11 +109,7 @@ public class ProfileFragment extends Fragment {
                 Class<?> targetActivity = null;
 
                 if (view.getId() == R.id.profileSetting) {
-                    Intent intent = new Intent(getActivity(), ProfileSettingActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("email", mailText.getText().toString());
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+                    targetActivity = ProfileSettingActivity.class;
                 } else if (view.getId() == R.id.notificationSetting) {
                     targetActivity = NotificationSettingActivity.class;
                 } else if (view.getId() == R.id.privacySetting) {
@@ -137,5 +137,20 @@ public class ProfileFragment extends Fragment {
         faqs.setOnClickListener(settingsClickListener);
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String userEmail = getEmailFromSharedPreferences();
+
+        if (!userEmail.isEmpty()) {
+            loadingDialog.show();
+            userViewModel.fetchUserInfo(userEmail);
+        }
+    }
+
+    private String getEmailFromSharedPreferences() {
+        return sharedPreferences.getString("email", "");
     }
 }

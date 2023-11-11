@@ -1,12 +1,12 @@
-package com.example.happyapp.authentication;
+package com.example.happyapp.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,54 +25,54 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class FillEmailForgotPasswordActivity extends AppCompatActivity implements View.OnClickListener {
-    private ImageButton backButton;
-    private EditText email;
-    private Button send;
+public class ChangeNameActivity extends AppCompatActivity implements View.OnClickListener {
+    private ImageView backButton;
+    private TextView newName;
+    private Button submitButton;
     private LoadingDialog loadingDialog;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fill_email_forgot_password);
+        setContentView(R.layout.activity_change_name);
 
-        email = findViewById(R.id.email);
-        send = findViewById(R.id.send);
+        email = getIntent().getStringExtra("email");
+
         backButton = findViewById(R.id.backButton);
-
-        loadingDialog = new LoadingDialog(FillEmailForgotPasswordActivity.this);
-
+        submitButton = findViewById(R.id.submit);
+        newName = findViewById(R.id.name);
         backButton.setOnClickListener(this);
-        send.setOnClickListener(this);
+        submitButton.setOnClickListener(this);
+        loadingDialog = new LoadingDialog(ChangeNameActivity.this);
     }
 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
-            onBackPressed();
+            Intent intent = new Intent(ChangeNameActivity.this, ProfileSettingActivity.class);
+            startActivity(intent);
             finish();
         }
-        if (v.getId() == R.id.send) {
-            String emailText = email.getText().toString();
+        if (v.getId() == R.id.submit) {
+            String nameText = newName.getText().toString();
 
-            if (TextUtils.isEmpty(emailText)) {
-                email.setError("Email is required");
+            if (TextUtils.isEmpty(nameText)) {
+                newName.setError("Name is required");
                 return;
             }
 
             loadingDialog.show();
 
-
-            ApiHelper.sendEmailFP(emailText, new Callback() {
+            ApiHelper.changeName(email, nameText, new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toasty.info(FillEmailForgotPasswordActivity.this, "Please verify otp from your mail!", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(FillEmailForgotPasswordActivity.this, VerifyOtpForgotPasswordActivity.class);
-                                intent.putExtra("email", emailText);
+                                Toasty.success(ChangeNameActivity.this, "Change new name successfully!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(ChangeNameActivity.this, ProfileSettingActivity.class);
                                 startActivity(intent);
                                 finish();
                             }
@@ -84,10 +84,10 @@ public class FillEmailForgotPasswordActivity extends AppCompatActivity implement
                                 try {
                                     JSONObject errorResponse = new JSONObject(response.body().string());
                                     String errorMessage = errorResponse.getString("error");
-                                    Toasty.error(FillEmailForgotPasswordActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                    Toasty.error(ChangeNameActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                                 } catch (JSONException | IOException e) {
                                     e.printStackTrace();
-                                    Toasty.error(FillEmailForgotPasswordActivity.this, "Failed to verify forgot password.", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(ChangeNameActivity.this, "Failed to change name.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -100,7 +100,7 @@ public class FillEmailForgotPasswordActivity extends AppCompatActivity implement
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toasty.error(FillEmailForgotPasswordActivity.this, "Failed to verify forgot password.", Toast.LENGTH_SHORT).show();
+                            Toasty.error(ChangeNameActivity.this, "Failed to change name.", Toast.LENGTH_SHORT).show();
                         }
                     });
                     loadingDialog.dismiss();

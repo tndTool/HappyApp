@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -24,6 +26,12 @@
         android:theme="@style/Theme.HappyApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".profile.ChangeNameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".profile.ChangePasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".profile.FAQsActivity"
             android:exported="false" />

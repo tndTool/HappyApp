@@ -1,8 +1,9 @@
 package com.example.happyapp.authentication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -36,6 +37,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     private Button loginButton;
     private boolean passwordVisible;
     private LoadingDialog loadingDialog;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,11 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         passwordEditText = findViewById(R.id.password);
 
         loadingDialog = new LoadingDialog(SigninActivity.this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (isLoggedIn()) {
+            redirectToMainActivity();
+        }
 
         signupButton.setOnClickListener(this);
         forgotPassword.setOnClickListener(this);
@@ -61,10 +68,12 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         if (v.getId() == R.id.signupButton) {
             Intent intent = new Intent(SigninActivity.this, SignupActivity.class);
             startActivity(intent);
+            finish();
         }
         if (v.getId() == R.id.forgotPassword) {
             Intent intent = new Intent(SigninActivity.this, FillEmailForgotPasswordActivity.class);
             startActivity(intent);
+            finish();
         }
         if (v.getId() == R.id.loginButton) {
             String email = emailEditText.getText().toString();
@@ -82,76 +91,88 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
 
             loadingDialog.show();
 
-            new Handler().postDelayed(new Runnable() {
+
+            ApiHelper.loginUser(email, password, new Callback() {
                 @Override
-                public void run() {
-                    ApiHelper.loginUser(email, password, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (response.isSuccessful()) {
-                                try {
-                                    JSONObject jsonResponse = new JSONObject(response.body().string());
-                                    boolean success = jsonResponse.getBoolean("success");
-                                    if (success) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toasty.success(SigninActivity.this, "Login successful.", Toast.LENGTH_SHORT).show();
-                                                Intent intent = new Intent(SigninActivity.this, MainActivity.class);
-                                                intent.putExtra("email", email);
-                                                startActivity(intent);
-                                                finish();
-                                            }
-                                        });
-                                    } else {
-                                        String errorMessage = jsonResponse.getString("error");
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toasty.error(SigninActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response.body().string());
+                            boolean success = jsonResponse.getBoolean("success");
+                            if (success) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try {
-                                            JSONObject errorResponse = new JSONObject(response.body().string());
-                                            String errorMessage = errorResponse.getString("error");
-                                            Toasty.error(SigninActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException | IOException e) {
-                                            e.printStackTrace();
-                                            Toasty.error(SigninActivity.this, "Failed to log in.", Toast.LENGTH_SHORT).show();
-                                        }
+                                        Toasty.success(SigninActivity.this, "Login successful.", Toast.LENGTH_SHORT).show();
+                                        saveLoginSession(email);
+                                        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                });
+                            } else {
+                                String errorMessage = jsonResponse.getString("error");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toasty.error(SigninActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
-
-                            loadingDialog.dismiss();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            // Handle the login failure or network error
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(SigninActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
                                     Toasty.error(SigninActivity.this, "Failed to log in.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
+                            }
+                        });
+                    }
 
-                            loadingDialog.dismiss();
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(SigninActivity.this, "Failed to log in.", Toast.LENGTH_SHORT).show();
                         }
                     });
+
+                    loadingDialog.dismiss();
                 }
-            }, 500);
+            });
+
         }
     }
 
+    private void redirectToMainActivity() {
+        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private boolean isLoggedIn() {
+        return sharedPreferences.getBoolean("isLoggedIn", false);
+    }
+
+    private void saveLoginSession(String email) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedIn", true);
+        editor.putString("email", email);
+        editor.apply();
+    }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {

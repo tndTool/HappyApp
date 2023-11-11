@@ -51,6 +51,7 @@
                 android:padding="15dp">
 
                 <RelativeLayout
+                    android:id="@+id/changeName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -161,7 +162,6 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/editIcon"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_alignParentEnd="true"

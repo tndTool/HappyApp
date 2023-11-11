@@ -1,9 +1,10 @@
 package com.example.happyapp.authentication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -38,6 +39,7 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
     private TextView resendButton;
     private CountDownTimer resendTimer;
     private LoadingDialog loadingDialog;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
         submit = findViewById(R.id.submit);
 
         loadingDialog = new LoadingDialog(VerifyOtpSignupActivity.this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         backButton.setOnClickListener(this);
         resendButton.setOnClickListener(this);
@@ -130,6 +133,7 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
     public void onClick(View v) {
         if (v.getId() == R.id.backButton) {
             onBackPressed();
+            finish();
         }
         if (v.getId() == R.id.resend) {
             otpBox1.setText("");
@@ -149,58 +153,52 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
 
                 @Override
                 public void onFinish() {
-                    // Enable the resend button and update the text
                     resendButton.setEnabled(true);
                     resendButton.setText("Resend");
                 }
             }.start();
 
             loadingDialog.show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ApiHelper.resendOtp(email, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            // Handle the registration success response
-                            if (response.isSuccessful()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toasty.success(VerifyOtpSignupActivity.this, "Resend OTP successfully!", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            JSONObject errorResponse = new JSONObject(response.body().string());
-                                            String errorMessage = errorResponse.getString("error");
-                                            Toasty.error(VerifyOtpSignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException | IOException e) {
-                                            e.printStackTrace();
-                                            Toasty.error(VerifyOtpSignupActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            }
-                            loadingDialog.dismiss();
-                        }
 
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+            ApiHelper.resendOtp(email, new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toasty.success(VerifyOtpSignupActivity.this, "Resend OTP successfully!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(VerifyOtpSignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
                                     Toasty.error(VerifyOtpSignupActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            loadingDialog.dismiss();
+                            }
+                        });
+                    }
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(VerifyOtpSignupActivity.this, "Failed to resend OTP.", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    loadingDialog.dismiss();
                 }
-            }, 500);
+            });
         }
         if (v.getId() == R.id.submit) {
             String otp1Text = otpBox1.getText().toString();
@@ -211,55 +209,57 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
             String otpText = otp1Text + otp2Text + otp3Text + otp4Text;
 
             loadingDialog.show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ApiHelper.verifyUser(email, otpText, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            // Handle the registration success response
-                            if (response.isSuccessful()) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toasty.success(VerifyOtpSignupActivity.this, "Register account successfully!", Toast.LENGTH_SHORT).show();
-                                        // Redirect to the main activity or perform any other necessary action
-                                        Intent intent = new Intent(VerifyOtpSignupActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                });
-                            } else {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            JSONObject errorResponse = new JSONObject(response.body().string());
-                                            String errorMessage = errorResponse.getString("error");
-                                            Toasty.error(VerifyOtpSignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException | IOException e) {
-                                            e.printStackTrace();
-                                            Toasty.error(VerifyOtpSignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            }
-                            loadingDialog.dismiss();
-                        }
 
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+            ApiHelper.verifyUser(email, otpText, new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toasty.success(VerifyOtpSignupActivity.this, "Register account successfully!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(VerifyOtpSignupActivity.this, MainActivity.class);
+                                saveLoginSession(email);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(VerifyOtpSignupActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
                                     Toasty.error(VerifyOtpSignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            loadingDialog.dismiss();
+                            }
+                        });
+                    }
+                    loadingDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(VerifyOtpSignupActivity.this, "Failed to register user.", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    loadingDialog.dismiss();
                 }
-            }, 500);
+            });
         }
+    }
+
+    private void saveLoginSession(String email) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedIn", true);
+        editor.putString("email", email);
+        editor.apply();
     }
 }
