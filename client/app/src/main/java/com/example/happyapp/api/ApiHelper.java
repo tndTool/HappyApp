@@ -10,7 +10,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    private static final String BASE_URL = "http://192.168.1.20:5000/api/";
+    private static final String BASE_URL = "http://192.168.1.14:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
         JSONObject requestBody = new JSONObject();

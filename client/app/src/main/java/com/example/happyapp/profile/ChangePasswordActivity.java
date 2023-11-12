@@ -3,6 +3,9 @@ package com.example.happyapp.profile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,9 +28,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class ChangePasswordActivity extends AppCompatActivity implements View.OnClickListener {
+public class ChangePasswordActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener {
     private ImageView backButton;
     private EditText password, confirmPassword;
+    private boolean passwordVisible;
     private Button submit;
     private String email;
     private LoadingDialog loadingDialog;
@@ -44,6 +48,8 @@ public class ChangePasswordActivity extends AppCompatActivity implements View.On
 
         submit = findViewById(R.id.submit);
         backButton = findViewById(R.id.backButton);
+        password.setOnTouchListener(this);
+        confirmPassword.setOnTouchListener(this);
         backButton.setOnClickListener(this);
         submit.setOnClickListener(this);
         loadingDialog = new LoadingDialog(ChangePasswordActivity.this);
@@ -120,5 +126,37 @@ public class ChangePasswordActivity extends AppCompatActivity implements View.On
                 Toasty.error(ChangePasswordActivity.this, "Password does not match!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        final int Right = 2;
+        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+            if (view == password && motionEvent.getRawX() >= password.getRight() - password.getCompoundDrawables()[Right].getBounds().width()) {
+                int selection = password.getSelectionEnd();
+                if (passwordVisible) {
+                    password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hide_password_icon, 0);
+                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                } else {
+                    password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.show_password_icon, 0);
+                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                passwordVisible = !passwordVisible;
+                password.setSelection(selection);
+                return true;
+            } else if (view == confirmPassword && motionEvent.getRawX() >= confirmPassword.getRight() - confirmPassword.getCompoundDrawables()[Right].getBounds().width()) {
+                int selection = confirmPassword.getSelectionEnd();
+                if (passwordVisible) {
+                    confirmPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.hide_password_icon, 0);
+                    confirmPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                } else {
+                    confirmPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.show_password_icon, 0);
+                    confirmPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                passwordVisible = !passwordVisible;
+                confirmPassword.setSelection(selection);
+                return true;
+            }
+        }
+        return false;
     }
 }

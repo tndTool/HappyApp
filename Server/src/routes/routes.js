@@ -113,7 +113,7 @@ router.post("/api/register", async (req, res) => {
         "User registered successfully. Please check your email for verification.",
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to register user." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -135,7 +135,7 @@ router.post("/api/verify", async (req, res) => {
       .status(200)
       .json({ success: true, message: "Email verified successfully." });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to verify email." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -179,7 +179,7 @@ router.post("/api/resendOtp", async (req, res) => {
       message: "OTP sent successfully. Please check your email.",
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to send OTP." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -210,7 +210,7 @@ router.post("/api/login", async (req, res) => {
 
     res.status(200).json({ success: true, message: "Login successful." });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to log in." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -255,7 +255,7 @@ router.post("/api/forgotpassword/sendotp", async (req, res) => {
       message: "OTP sent successfully. Please check your email.",
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to send OTP." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -273,7 +273,7 @@ router.post("/api/forgotpassword/verifyotp", async (req, res) => {
       .status(200)
       .json({ success: true, message: "OTP verified successfully." });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to verify OTP." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -301,9 +301,7 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
       .status(200)
       .json({ success: true, message: "Password reset successfully." });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to reset password." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -326,7 +324,7 @@ router.get("/api/user/:email", async (req, res) => {
 
     res.status(200).json(userInfo);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve user information" });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -355,8 +353,7 @@ router.put("/api/user/changename", async (req, res) => {
 
     res.status(200).json({ message: "Name changed successfully", user });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
@@ -385,8 +382,6 @@ router.post("/api/user/changepassword", async (req, res) => {
       .status(200)
       .json({ success: true, message: "Password change successfully." });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to change password." });
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
