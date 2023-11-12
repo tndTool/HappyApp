@@ -68,12 +68,10 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         if (v.getId() == R.id.signupButton) {
             Intent intent = new Intent(SigninActivity.this, SignupActivity.class);
             startActivity(intent);
-            finish();
         }
         if (v.getId() == R.id.forgotPassword) {
             Intent intent = new Intent(SigninActivity.this, FillEmailForgotPasswordActivity.class);
             startActivity(intent);
-            finish();
         }
         if (v.getId() == R.id.loginButton) {
             String email = emailEditText.getText().toString();

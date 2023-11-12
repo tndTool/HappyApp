@@ -95,7 +95,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                                     Intent intent = new Intent(SignupActivity.this, VerifyOtpSignupActivity.class);
                                     intent.putExtra("email", emailText);
                                     startActivity(intent);
-                                    finish();
                                 }
                             });
                         } else {
@@ -129,6 +128,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 });
             } else {
                 Toasty.error(SignupActivity.this, "Password does not match!", Toast.LENGTH_SHORT).show();
+                loadingDialog.dismiss();
             }
         }
     }

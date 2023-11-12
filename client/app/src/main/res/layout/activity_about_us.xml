@@ -40,6 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="About Us"
+            android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -48,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Welcome to our app! We are dedicated to providing the best user experience and innovative solutions for your needs. Feel free to reach out to us if you have any questions or feedback."
+            android:textColor="@color/black"
             android:textSize="18sp" />
 
         <TextView
@@ -56,6 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Contact us: happyappuit@gmail.com"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>

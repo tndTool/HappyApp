@@ -74,7 +74,6 @@ public class FillEmailForgotPasswordActivity extends AppCompatActivity implement
                                 Intent intent = new Intent(FillEmailForgotPasswordActivity.this, VerifyOtpForgotPasswordActivity.class);
                                 intent.putExtra("email", emailText);
                                 startActivity(intent);
-                                finish();
                             }
                         });
                     } else {

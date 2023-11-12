@@ -42,8 +42,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         Context context = getContext();
 
-        Intent serviceIntent = new Intent(getContext(), SensorService.class);
-        ContextCompat.startForegroundService(getContext(), serviceIntent);
+//        Intent serviceIntent = new Intent(getContext(), SensorService.class);
+//        ContextCompat.startForegroundService(getContext(), serviceIntent);
 
         tvMagnetic = rootView.findViewById(R.id.magnetic);
         tvTemperature = rootView.findViewById(R.id.temperature);

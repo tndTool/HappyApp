@@ -124,6 +124,7 @@ public class FillNewPasswordActivity extends AppCompatActivity implements View.O
                 });
             } else {
                 Toasty.error(FillNewPasswordActivity.this, "Password does not match!", Toast.LENGTH_SHORT).show();
+                loadingDialog.dismiss();
             }
         }
     }
