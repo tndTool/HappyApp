@@ -2,48 +2,57 @@ package com.example.happyapp.profile;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.happyapp.R;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import es.dmoral.toasty.Toasty;
 
 public class PrivacySettingActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView backButton;
-    private Switch switchSensorCollection;
     private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "sensor_collection_pref";
-    private static final String KEY_SENSOR_COLLECTION_ENABLED = "sensor_collection_enabled";
+    private Map<Integer, String> sensorPreferencesMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy_setting);
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         backButton = findViewById(R.id.backButton);
-        switchSensorCollection = findViewById(R.id.switch_sensor_collection);
-        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        boolean isSensorCollectionEnabled = sharedPreferences.getBoolean(KEY_SENSOR_COLLECTION_ENABLED, false);
-        switchSensorCollection.setChecked(isSensorCollectionEnabled);
-        switchSensorCollection.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    startSensorCollection();
-                } else {
-                    stopSensorCollection();
-                }
-                saveSwitchState(isChecked);
-            }
-        });
+        sensorPreferencesMap = new HashMap<>();
+        sensorPreferencesMap.put(R.id.switch_sensor_light, "switchSensorLight");
+        sensorPreferencesMap.put(R.id.switch_sensor_temperature, "switchSensorTemperature");
+        sensorPreferencesMap.put(R.id.switch_sensor_humidity, "switchSensorHumidity");
+        sensorPreferencesMap.put(R.id.switch_sensor_accelerometer, "switchSensorAccelerometer");
+        sensorPreferencesMap.put(R.id.switch_sensor_gyroscope, "switchSensorGyroscope");
+        sensorPreferencesMap.put(R.id.switch_sensor_magnetic, "switchSensorMagnetic");
+        sensorPreferencesMap.put(R.id.switch_sensor_pressure, "switchSensorPressure");
+        sensorPreferencesMap.put(R.id.switch_sensor_proximity, "switchSensorProximity");
+        sensorPreferencesMap.put(R.id.switch_sensor_stepDetector, "switchSensorStepDetector");
 
+        for (Map.Entry<Integer, String> entry : sensorPreferencesMap.entrySet()) {
+            int switchId = entry.getKey();
+            String preferenceKey = entry.getValue();
+
+            Switch sensorSwitch = findViewById(switchId);
+            sensorSwitch.setChecked(sharedPreferences.getBoolean(preferenceKey, true));
+            sensorSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(preferenceKey, isChecked);
+                editor.apply();
+                showNotification(isChecked, preferenceKey);
+            });
+        }
 
         backButton.setOnClickListener(this);
     }
@@ -55,16 +64,35 @@ public class PrivacySettingActivity extends AppCompatActivity implements View.On
         }
     }
 
-    private void startSensorCollection() {
-        Toasty.info(this, "Sensor collection started", Toast.LENGTH_SHORT).show();
+    private void showNotification(boolean isChecked, String preferenceKey) {
+        String sensorName = getSensorName(preferenceKey);
+        String message = isChecked ? sensorName + " sensor turned on" : sensorName + " sensor turned off";
+        Toasty.info(this, message, Toasty.LENGTH_SHORT).show();
     }
 
-    private void stopSensorCollection() {
-        Toasty.info(this, "Sensor collection stopped", Toast.LENGTH_SHORT).show();
-    }
-    private void saveSwitchState(boolean isChecked) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_SENSOR_COLLECTION_ENABLED, isChecked);
-        editor.apply();
+    private String getSensorName(String preferenceKey) {
+        // You can customize this method to return the appropriate sensor name based on the preference key
+        switch (preferenceKey) {
+            case "switchSensorLight":
+                return "Light";
+            case "switchSensorTemperature":
+                return "Temperature";
+            case "switchSensorHumidity":
+                return "Humidity";
+            case "switchSensorAccelerometer":
+                return "Accelerometer";
+            case "switchSensorGyroscope":
+                return "Gyroscope";
+            case "switchSensorMagnetic":
+                return "Magnetic";
+            case "switchSensorPressure":
+                return "Pressure";
+            case "switchSensorProximity":
+                return "Proximity";
+            case "switchSensorStepDetector":
+                return "Step Detector";
+            default:
+                return "Unknown Sensor";
+        }
     }
 }

@@ -43,6 +43,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.airbnb.android:lottie:5.2.0")
     implementation("androidx.preference:preference:1.2.0")
+    implementation("com.google.android.gms:play-services-location:17.0.0")
 
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     testImplementation("junit:junit:4.13.2")

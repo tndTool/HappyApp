@@ -10,7 +10,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    private static final String BASE_URL = "https://happy-app-server.vercel.app/api/";
+    private static final String BASE_URL = "http://192.168.1.7:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
         JSONObject requestBody = new JSONObject();
@@ -193,6 +193,25 @@ public class ApiHelper {
 
         Request request = new Request.Builder()
                 .url(BASE_URL + "user/changepassword")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+    public static void saveDataSensor(String email, String value, Callback callback) {
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("email", email);
+            requestBody.put("value", value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
+
+        Request request = new Request.Builder()
+                .url(BASE_URL + "sensor/data")
                 .post(body)
                 .build();
 

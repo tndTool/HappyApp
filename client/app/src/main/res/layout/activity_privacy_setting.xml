@@ -40,25 +40,88 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!-- Existing UI elements... -->
-
             <TextView
                 android:id="@+id/textview_sensor_collection_title"
-                android:textColor="@color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="16dp"
                 android:text="Sensor Collection"
+                android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
             <Switch
-                android:id="@+id/switch_sensor_collection"
+                android:id="@+id/switch_sensor_light"
                 android:layout_width="wrap_content"
-                android:textColor="@color/black"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Enable Sensor Collection" />
+                android:text="Light Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_humidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Humidity Sensor"
+                android:textColor="@color/black" />
+
+
+            <Switch
+                android:id="@+id/switch_sensor_pressure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Pressure Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_proximity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Proximity Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_magnetic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Magnetic Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_gyroscope"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Gyroscope Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Temperature Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_stepDetector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Step Detector Sensor"
+                android:textColor="@color/black" />
+
+            <Switch
+                android:id="@+id/switch_sensor_accelerometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Accelerometer Sensor"
+                android:textColor="@color/black" />
 
         </LinearLayout>
     </LinearLayout>

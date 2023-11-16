@@ -1,6 +1,7 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const User = require("../models/user.js");
+const Sensor = require("../models/sensor.js");
 
 const router = express.Router();
 
@@ -383,5 +384,35 @@ router.post("/api/user/changepassword", async (req, res) => {
       .json({ success: true, message: "Password change successfully." });
   } catch (error) {
     res.status(500).json({ success: false, error: "Internal server error." });
+  }
+});
+
+// Save sensor data:
+router.post("/api/sensor/data", async (req, res) => {
+  try {
+    const { email, values } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const sensorData = values.map(({ sensor, value }) => ({
+      sensor,
+      value,
+    }));
+
+    const newData = new Sensor({
+      email,
+      values: sensorData,
+    });
+
+    await newData.save();
+
+    return res.status(201).json({ message: "Data saved successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
