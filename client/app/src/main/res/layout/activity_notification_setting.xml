@@ -43,21 +43,24 @@
 
             <TextView
                 android:id="@+id/textview_notification_title"
-                android:textColor="@color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:paddingTop="16dp"
                 android:text="Notification"
-                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <Switch
                 android:id="@+id/switch_notification"
-                android:textColor="@color/black"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Enable Notification" />
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:text="Enable Notification"
+                android:textColor="@color/black" />
 
         </LinearLayout>
     </LinearLayout>

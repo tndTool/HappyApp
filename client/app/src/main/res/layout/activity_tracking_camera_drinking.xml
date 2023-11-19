@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".tracking.TrackingCameraDrinkingActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:adjustViewBounds="true"
+            android:background="@color/primary"
+            android:scaleType="fitCenter"
+            android:src="@drawable/back_button_icon" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/round_bg_secondary"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Question 1: How often do you consume alcoholic beverages?"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_alcohol"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_alcohol_always"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Always" />
+
+                    <RadioButton
+                        android:id="@+id/radio_alcohol_sometimes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sometimes" />
+
+                    <RadioButton
+                        android:id="@+id/radio_alcohol_never"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Never" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Question 2: How often do you consume sugary drinks?"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_sugary_drinks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_sugary_drinks_always"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Always" />
+
+                    <RadioButton
+                        android:id="@+id/radio_sugary_drinks_sometimes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sometimes" />
+
+                    <RadioButton
+                        android:id="@+id/radio_sugary_drinks_never"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Never" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Question 3: How frequently do you consume caffeinated beverages?"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_caffeinated_beverages"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_caffeinated_beverages_always"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Always" />
+
+                    <RadioButton
+                        android:id="@+id/radio_caffeinated_beverages_sometimes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sometimes" />
+
+                    <RadioButton
+                        android:id="@+id/radio_caffeinated_beverages_never"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Never" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Question 4: On average, how many alcoholic drinks do you consume per week?"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_average_alcoholic_drinks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_average_alcoholic_drinks_none"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="None" />
+
+                    <RadioButton
+                        android:id="@+id/radio_average_alcoholic_drinks_1_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1-2" />
+
+                    <RadioButton
+                        android:id="@+id/radio_average_alcoholic_drinks_3_5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3-5" />
+
+                    <RadioButton
+                        android:id="@+id/radio_average_alcoholic_drinks_6_more"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6 or more" />
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Question 5: Do you tend to drink more when you are stressed or anxious?"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_stressed_anxious"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_stressed_anxious_yes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yes" />
+
+                    <RadioButton
+                        android:id="@+id/radio_stressed_anxious_no"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No" />
+
+                    <RadioButton
+                        android:id="@+id/radio_stressed_anxious_sometimes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sometimes" />
+
+                </RadioGroup>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/signupButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="60dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="60dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="submit"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</LinearLayout>
