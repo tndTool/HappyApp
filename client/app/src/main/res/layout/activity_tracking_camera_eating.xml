@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,204 +26,47 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="30dp"
+        android:layout_weight="1"
         android:background="@drawable/round_bg_secondary"
         android:orientation="vertical"
         android:padding="15dp">
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Question 1: How often do you eat breakfast?"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_breakfast"
+                <LinearLayout
+                    android:id="@+id/questionLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="8dp">
 
-                    <RadioButton
-                        android:id="@+id/radio_breakfast_always"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Always" />
 
-                    <RadioButton
-                        android:id="@+id/radio_breakfast_sometimes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sometimes" />
-
-                    <RadioButton
-                        android:id="@+id/radio_breakfast_never"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Never" />
-
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Question 2: How often do you eat lunch?"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_lunch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/radio_lunch_always"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Always" />
-
-                    <RadioButton
-                        android:id="@+id/radio_lunch_sometimes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sometimes" />
-
-                    <RadioButton
-                        android:id="@+id/radio_lunch_never"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Never" />
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Question 3: How often do you eat dinner?"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_dinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/radio_dinner_always"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Always" />
-
-                    <RadioButton
-                        android:id="@+id/radio_dinner_sometimes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sometimes" />
-
-                    <RadioButton
-                        android:id="@+id/radio_dinner_never"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Never" />
-
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Question 4: How often do you have snacks between meals?"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_snacks"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/radio_snacks_always"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Always" />
-
-                    <RadioButton
-                        android:id="@+id/radio_snacks_sometimes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sometimes" />
-
-                    <RadioButton
-                        android:id="@+id/radio_snacks_never"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Never" />
-
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Question 5: How often do you eat out at restaurants or order takeout?"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_group_eating_out"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RadioButton
-                        android:id="@+id/radio_eating_out_always"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Always" />
-
-                    <RadioButton
-                        android:id="@+id/radio_eating_out_sometimes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sometimes" />
-
-                    <RadioButton
-                        android:id="@+id/radio_eating_out_never"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Never" />
-
-                </RadioGroup>
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/signupButton"
+                    android:id="@+id/submitButton"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
+                    android:layout_below="@id/questionLayout"
                     android:layout_marginStart="60dp"
                     android:layout_marginTop="30dp"
                     android:layout_marginEnd="60dp"
                     android:layout_marginBottom="20dp"
-                    android:text="submit"
+                    android:text="Submit"
                     android:textAllCaps="true" />
-            </LinearLayout>
+
+            </RelativeLayout>
         </ScrollView>
     </LinearLayout>
 </LinearLayout>

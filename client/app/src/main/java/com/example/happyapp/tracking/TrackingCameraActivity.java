@@ -2,22 +2,27 @@ package com.example.happyapp.tracking;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.happyapp.R;
 
+import es.dmoral.toasty.Toasty;
+
 public class TrackingCameraActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView photoImageView;
-    private RadioButton eatingBehavior, drinkingBehavior;
     private Button backButton, nextButton;
+    private String[] behaviors = {"Eating", "Drinking"};
+    private AutoCompleteTextView autoCompleteTextView;
+    ArrayAdapter<String> adapterItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +30,7 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
         setContentView(R.layout.activity_tracking_camera);
 
         photoImageView = findViewById(R.id.capturedImageView);
-        eatingBehavior = findViewById(R.id.eatingBehavior);
-        drinkingBehavior = findViewById(R.id.drinkingBehavior);
+        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
         backButton = findViewById(R.id.backButton);
         nextButton = findViewById(R.id.nextButton);
         Bitmap photo = getIntent().getParcelableExtra("photo");
@@ -35,23 +39,13 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
         backButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
 
-        eatingBehavior.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        adapterItems = new ArrayAdapter<String>(this, R.layout.list_behaviors, behaviors);
+        autoCompleteTextView.setAdapter(adapterItems);
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    eatingBehavior.setTextColor(Color.WHITE);
-                    drinkingBehavior.setTextColor(Color.BLACK);
-                }
-            }
-        });
-
-        drinkingBehavior.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    eatingBehavior.setTextColor(Color.BLACK);
-                    drinkingBehavior.setTextColor(Color.WHITE);
-                }
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                Toasty.info(getApplicationContext(), "Item: " + item, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -62,13 +56,18 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
             onBackPressed();
             finish();
         } else if (v.getId() == R.id.nextButton) {
-            if (eatingBehavior.isChecked()) {
+            String selectedBehavior = autoCompleteTextView.getText().toString();
+            if (selectedBehavior.isEmpty()){
+                autoCompleteTextView.setError("Select is required");
+                return;
+            }
+
+            if (selectedBehavior.equals("Eating")) {
                 Bitmap photo = getIntent().getParcelableExtra("photo");
                 Intent intent = new Intent(TrackingCameraActivity.this, TrackingCameraEatingActivity.class);
                 intent.putExtra("photo", photo);
                 startActivity(intent);
-            }
-            if (drinkingBehavior.isChecked()) {
+            } else if (selectedBehavior.equals("Drinking")) {
                 Bitmap photo = getIntent().getParcelableExtra("photo");
                 Intent intent = new Intent(TrackingCameraActivity.this, TrackingCameraDrinkingActivity.class);
                 intent.putExtra("photo", photo);
@@ -76,5 +75,4 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
             }
         }
     }
-
 }

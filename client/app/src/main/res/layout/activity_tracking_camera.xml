@@ -21,40 +21,26 @@
         android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
 
-    <RadioGroup
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="30dp">
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:hint="@string/select">
 
-        <androidx.appcompat.widget.AppCompatRadioButton
-            android:id="@+id/eatingBehavior"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:background="@drawable/radio_button_left_selector"
-            android:button="@android:color/transparent"
-            android:checked="true"
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
             android:gravity="center"
-            android:text="Eating"
-            android:textColor="@color/white" />
+            android:layout_height="wrap_content"
+            android:inputType="none" />
 
-        <androidx.appcompat.widget.AppCompatRadioButton
-            android:id="@+id/drinkingBehavior"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:background="@drawable/radio_button_right_selector"
-            android:button="@android:color/transparent"
-            android:checked="false"
-            android:gravity="center"
-            android:text="Drinking"
-            android:textColor="@color/black" />
-    </RadioGroup>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
