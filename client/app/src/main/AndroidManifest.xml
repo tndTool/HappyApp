@@ -46,6 +46,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".tracking.TrackingVideoDrinkingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".tracking.TrackingVideoEatingActivity"
+            android:exported="false" />
+        <activity
             android:name=".tracking.TrackingCameraDrinkingActivity"
             android:exported="false" />
         <activity

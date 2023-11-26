@@ -1,10 +1,5 @@
 Question 1: How often do you eat breakfast?,Always,Sometimes,Never
-Question 2: How often?,Never,Sometimes,Always
-Question 3: How often do you eat breakfast?,Always,Sometimes,Never
-Question 4: How often?,Never,Sometimes,Always
-Question 5: How often do you eat breakfast?,Always,Sometimes,Never
-Question 6: How often?,Never,Sometimes,Always
-Question 7: How often do you eat breakfast?,Always,Sometimes,Never
-Question 8: How often?,Never,Sometimes,Always
-Question 9: How often do you eat breakfast?,Always,Sometimes,Never
-Question 10: How often?,Never,Sometimes,Always
+Question 2: How often do you have snacks between meals?,Rarely,Occasionally,Frequently
+Question 3: How often do you eat fast food?,Rarely,Occasionally,Frequently
+Question 4: How often do you consume sugary beverages?,Rarely,Occasionally,Frequently
+Question 5: How often do you eat fruits and vegetables?,Rarely,Occasionally,Frequently

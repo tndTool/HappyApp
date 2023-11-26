@@ -27,8 +27,7 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
-public class TrackingCameraEatingActivity extends AppCompatActivity implements View.OnClickListener {
-
+public class TrackingVideoDrinkingActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView backButton;
     private LinearLayout questionLayout;
     private List<String[]> questionList;
@@ -39,12 +38,11 @@ public class TrackingCameraEatingActivity extends AppCompatActivity implements V
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tracking_camera_eating);
+        setContentView(R.layout.activity_tracking_video_drinking);
         findView();
         setListeners();
         loadQuestionSetFromCSV();
         displayQuestions();
-
         userAnswers = new ArrayList<>();
     }
 
@@ -72,7 +70,7 @@ public class TrackingCameraEatingActivity extends AppCompatActivity implements V
         questionList = new ArrayList<>();
 
         try {
-            InputStream inputStream = getResources().openRawResource(R.raw.eating);
+            InputStream inputStream = getResources().openRawResource(R.raw.drinking);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
 

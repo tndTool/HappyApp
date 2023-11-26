@@ -56,17 +56,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     private SharedPreferences sharedPreferences;
     private String userEmail;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sensors);
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        userEmail = getEmailFromSharedPreferences();
-//        Intent serviceIntent = new Intent(getContext(), SensorService.class);
-//        ContextCompat.startForegroundService(getContext(), serviceIntent);
-
+    private void findView() {
         tvMagnetic = findViewById(R.id.magnetic);
         tvTemperature = findViewById(R.id.temperature);
         tvProximity = findViewById(R.id.proximity);
@@ -82,7 +72,19 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         tvListSensor = findViewById(R.id.listSensor);
         tvBluetoothName = findViewById(R.id.bluetoothName);
         tvBluetoothMAC = findViewById(R.id.bluetoothMAC);
+    }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sensors);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        userEmail = getEmailFromSharedPreferences();
+//        Intent serviceIntent = new Intent(getContext(), SensorService.class);
+//        ContextCompat.startForegroundService(getContext(), serviceIntent);
+
+        findView();
 
         sensorManagers = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -134,7 +136,6 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
             }
         });
-//        startBluetoothScan();
         printSensors();
     }
 
@@ -240,7 +241,6 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
     protected void onResume() {
         super.onResume();
-
 
         boolean isSwitchSensorLight = sharedPreferences.getBoolean("switchSensorLight", true);
         boolean isSwitchSensorHumidity = sharedPreferences.getBoolean("switchSensorHumidity", true);

@@ -18,6 +18,10 @@
         <item name="android:colorForeground">#333</item>
     </style>
 
+    <style name="RadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:buttonTint">@color/primary</item>
+    </style>
+
     <style name="Theme.HappyApp.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

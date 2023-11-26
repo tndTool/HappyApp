@@ -8,7 +8,10 @@ import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -24,14 +27,16 @@ import com.example.happyapp.tracking.TrackingVideoActivity;
 import com.example.happyapp.viewmodal.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import es.dmoral.toasty.Toasty;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private UserViewModel userViewModel;
     private String userEmail;
-    private static final int REQUEST_IMAGE_CAPTURE = 123;
-    private static final int REQUEST_VIDEO_CAPTURE = 456;
     private Uri videoUri;
+    private ActivityResultLauncher<Intent> takePictureLauncher;
+    private ActivityResultLauncher<Intent> recordVideoLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +70,43 @@ public class MainActivity extends AppCompatActivity {
                 showCameraOptions(view);
             }
         });
+
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null) {
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        if (imageBitmap != null) {
+                            Intent displayIntent = new Intent(this, TrackingCameraActivity.class);
+                            displayIntent.putExtra("photo", imageBitmap);
+                            startActivity(displayIntent);
+                        } else {
+                            Toasty.error(this, "Failed to capture image", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toasty.error(this, "Failed to capture image", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        recordVideoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null) {
+                    videoUri = data.getData();
+                    if (videoUri != null) {
+                        Intent displayIntent = new Intent(this, TrackingVideoActivity.class);
+                        displayIntent.putExtra("videoUri", videoUri.toString());
+                        startActivity(displayIntent);
+                    } else {
+                        Toasty.error(this, "Failed to capture video", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     private void showCameraOptions(View view) {
@@ -90,35 +132,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void dispatchTakePictureIntent() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            takePictureLauncher.launch(cameraIntent);
+        }
     }
 
     private void dispatchRecordVideoIntent() {
         Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        startActivityForResult(videoIntent, REQUEST_VIDEO_CAPTURE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-
-            Intent displayIntent = new Intent(this, TrackingCameraActivity.class);
-            displayIntent.putExtra("photo", imageBitmap);
-            startActivity(displayIntent);
-        }
-
-        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            videoUri = data.getData();
-
-            Intent displayIntent = new Intent(this, TrackingVideoActivity.class);
-            displayIntent.putExtra("videoUri", videoUri.toString());
-            startActivity(displayIntent);
+        if (videoIntent.resolveActivity(getPackageManager()) != null) {
+            videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10);
+            recordVideoLauncher.launch(videoIntent);
         }
     }
-
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
