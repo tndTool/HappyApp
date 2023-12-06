@@ -1,11 +1,10 @@
 package com.example.happyapp.fragment;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +13,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.happyapp.R;
 import com.example.happyapp.authentication.SigninActivity;
 import com.example.happyapp.dialog.LoadingDialog;
-import com.example.happyapp.model.User;
 import com.example.happyapp.profile.AboutUsActivity;
 import com.example.happyapp.profile.FAQsActivity;
 import com.example.happyapp.profile.NotificationSettingActivity;
@@ -37,6 +34,7 @@ public class ProfileFragment extends Fragment {
     private UserViewModel userViewModel;
     private LoadingDialog loadingDialog;
     private SharedPreferences sharedPreferences;
+    private boolean isUserInfoFetched = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,24 +47,63 @@ public class ProfileFragment extends Fragment {
         loadingDialog = new LoadingDialog(getActivity());
 
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPreferences = getActivity().getSharedPreferences(getActivity().getPackageName(), Context.MODE_PRIVATE);
 
         String userEmail = getEmailFromSharedPreferences();
 
-        if (!userEmail.isEmpty()) {
-            loadingDialog.show();
-            userViewModel.fetchUserInfo(userEmail);
+        if (!isUserInfoFetched && !userEmail.isEmpty()) {
+            fetchUserInfo(userEmail);
+            isUserInfoFetched = true;
         }
 
-        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                nameText.setText(user.getName());
-                mailText.setText(user.getEmail());
-                loadingDialog.dismiss();
-            }
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), user -> {
+            nameText.setText(user.getName());
+            mailText.setText(user.getEmail());
+            loadingDialog.dismiss();
         });
 
+        setupLogoutButton();
+        setupSettingsClickListeners(rootView);
+
+        return rootView;
+    }
+
+    private void fetchUserInfo(String userEmail) {
+        loadingDialog.show();
+        userViewModel.fetchUserInfo(userEmail);
+    }
+
+    private void setupLogoutButton() {
+        logoutButton.setOnClickListener(view -> {
+            showLogoutConfirmationDialog();
+        });
+    }
+
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Confirmation")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    logoutUser();
+                })
+                .setNegativeButton("No", (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                })
+                .show();
+    }
+
+    private void logoutUser() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedIn", false);
+        editor.remove("email");
+        editor.apply();
+
+        Intent intent = new Intent(getActivity(), SigninActivity.class);
+        startActivity(intent);
+        getActivity().finish();
+    }
+
+    private void setupSettingsClickListeners(View rootView) {
         RelativeLayout profileSetting = rootView.findViewById(R.id.profileSetting);
         RelativeLayout notificationSetting = rootView.findViewById(R.id.notificationSetting);
         RelativeLayout privacySetting = rootView.findViewById(R.id.privacySetting);
@@ -74,58 +111,26 @@ public class ProfileFragment extends Fragment {
         RelativeLayout aboutUs = rootView.findViewById(R.id.aboutUsSetting);
         RelativeLayout faqs = rootView.findViewById(R.id.faqsSetting);
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Confirmation")
-                        .setMessage("Are you sure you want to log out?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putBoolean("isLoggedIn", false);
-                                editor.remove("email");
-                                editor.apply();
+        View.OnClickListener settingsClickListener = view -> {
+            Class<?> targetActivity = null;
 
-                                Intent intent = new Intent(getActivity(), SigninActivity.class);
-                                startActivity(intent);
-                                getActivity().finish();
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        })
-                        .show();
+            if (view.getId() == R.id.profileSetting) {
+                targetActivity = ProfileSettingActivity.class;
+            } else if (view.getId() == R.id.notificationSetting) {
+                targetActivity = NotificationSettingActivity.class;
+            } else if (view.getId() == R.id.privacySetting) {
+                targetActivity = PrivacySettingActivity.class;
+            } else if (view.getId() == R.id.sendUsSetting) {
+                targetActivity = SendUsActivity.class;
+            } else if (view.getId() == R.id.aboutUsSetting) {
+                targetActivity = AboutUsActivity.class;
+            } else if (view.getId() == R.id.faqsSetting) {
+                targetActivity = FAQsActivity.class;
             }
-        });
 
-        View.OnClickListener settingsClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Class<?> targetActivity = null;
-
-                if (view.getId() == R.id.profileSetting) {
-                    targetActivity = ProfileSettingActivity.class;
-                } else if (view.getId() == R.id.notificationSetting) {
-                    targetActivity = NotificationSettingActivity.class;
-                } else if (view.getId() == R.id.privacySetting) {
-                    targetActivity = PrivacySettingActivity.class;
-                } else if (view.getId() == R.id.sendUsSetting) {
-                    targetActivity = SendUsActivity.class;
-                } else if (view.getId() == R.id.aboutUsSetting) {
-                    targetActivity = AboutUsActivity.class;
-                } else if (view.getId() == R.id.faqsSetting) {
-                    targetActivity = FAQsActivity.class;
-                }
-
-                if (targetActivity != null) {
-                    Intent intent = new Intent(getActivity(), targetActivity);
-                    startActivity(intent);
-                }
+            if (targetActivity != null) {
+                Intent intent = new Intent(getActivity(), targetActivity);
+                startActivity(intent);
             }
         };
 
@@ -135,8 +140,6 @@ public class ProfileFragment extends Fragment {
         sendUs.setOnClickListener(settingsClickListener);
         aboutUs.setOnClickListener(settingsClickListener);
         faqs.setOnClickListener(settingsClickListener);
-
-        return rootView;
     }
 
     @Override
@@ -144,9 +147,9 @@ public class ProfileFragment extends Fragment {
         super.onResume();
         String userEmail = getEmailFromSharedPreferences();
 
-        if (!userEmail.isEmpty()) {
-            loadingDialog.show();
-            userViewModel.fetchUserInfo(userEmail);
+        if (!isUserInfoFetched && !userEmail.isEmpty()) {
+            fetchUserInfo(userEmail);
+            isUserInfoFetched = true;
         }
     }
 

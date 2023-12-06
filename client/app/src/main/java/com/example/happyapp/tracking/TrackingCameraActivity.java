@@ -72,6 +72,7 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
             }
 
             Bitmap photo = getIntent().getParcelableExtra("photo");
+            
             Intent intent;
             if (selectedBehavior.equals("Eating")) {
                 intent = new Intent(this, TrackingCameraEatingActivity.class);

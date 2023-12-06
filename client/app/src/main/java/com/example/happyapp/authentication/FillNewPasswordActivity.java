@@ -43,13 +43,19 @@ public class FillNewPasswordActivity extends AppCompatActivity implements View.O
 
         email = getIntent().getStringExtra("email");
 
+        findViews();
+        setListeners();
+        loadingDialog = new LoadingDialog(FillNewPasswordActivity.this);
+    }
+
+    private void findViews() {
         password = findViewById(R.id.password);
         confirmPassword = findViewById(R.id.confirmPassword);
         backButton = findViewById(R.id.backButton);
         submit = findViewById(R.id.submit);
+    }
 
-        loadingDialog = new LoadingDialog(FillNewPasswordActivity.this);
-
+    private void setListeners() {
         password.setOnTouchListener(this);
         confirmPassword.setOnTouchListener(this);
         backButton.setOnClickListener(this);

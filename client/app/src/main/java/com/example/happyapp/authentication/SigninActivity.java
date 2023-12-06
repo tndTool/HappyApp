@@ -3,7 +3,6 @@ package com.example.happyapp.authentication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -45,19 +44,26 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
+        findViews();
+        setListeners();
+
+        loadingDialog = new LoadingDialog(SigninActivity.this);
+        sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+
+        if (isLoggedIn()) {
+            redirectToMainActivity();
+        }
+    }
+
+    private void findViews() {
         signupButton = findViewById(R.id.signupButton);
         forgotPassword = findViewById(R.id.forgotPassword);
         loginButton = findViewById(R.id.loginButton);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
+    }
 
-        loadingDialog = new LoadingDialog(SigninActivity.this);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (isLoggedIn()) {
-            redirectToMainActivity();
-        }
-
+    private void setListeners() {
         signupButton.setOnClickListener(this);
         forgotPassword.setOnClickListener(this);
         passwordEditText.setOnTouchListener(this);
@@ -156,14 +162,14 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private boolean isLoggedIn() {
+        return sharedPreferences.getBoolean("isLoggedIn", false);
+    }
+
     private void redirectToMainActivity() {
         Intent intent = new Intent(SigninActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private boolean isLoggedIn() {
-        return sharedPreferences.getBoolean("isLoggedIn", false);
     }
 
     private void saveLoginSession(String email) {

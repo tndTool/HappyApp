@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -48,6 +47,16 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
 
         email = getIntent().getStringExtra("email");
 
+        findViews();
+        setListeners();
+        setOtpTextWatcher();
+        setResendTimer();
+
+        loadingDialog = new LoadingDialog(VerifyOtpSignupActivity.this);
+        sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+    }
+
+    private void findViews() {
         backButton = findViewById(R.id.backButton);
         resendButton = findViewById(R.id.resend);
         otpBox1 = findViewById(R.id.otpBox1);
@@ -55,14 +64,15 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
         otpBox3 = findViewById(R.id.otpBox3);
         otpBox4 = findViewById(R.id.otpBox4);
         submit = findViewById(R.id.submit);
+    }
 
-        loadingDialog = new LoadingDialog(VerifyOtpSignupActivity.this);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
+    private void setListeners() {
         backButton.setOnClickListener(this);
         resendButton.setOnClickListener(this);
         submit.setOnClickListener(this);
+    }
 
+    private void setOtpTextWatcher() {
         TextWatcher otpTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -73,32 +83,11 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
                 EditText currentBox = (EditText) getCurrentFocus();
 
                 if (currentBox != null && s.length() == 0 && start == 0 && before == 1) {
-                    currentBox.clearFocus();
-                    if (currentBox == otpBox1) {
-                        otpBox1.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox1.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox4) {
-                        otpBox3.requestFocus();
-                    }
+                    handleOtpBackspace(currentBox);
                 } else if (currentBox != null && s.length() == 1 && start == 0 && before == 0) {
-                    if (currentBox == otpBox1) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox3.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox4.requestFocus();
-                    }
+                    handleOtpForward(currentBox);
                 } else if (currentBox != null && s.length() == 0 && start == 1 && before == 0) {
-                    if (currentBox == otpBox4) {
-                        otpBox3.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox1.requestFocus();
-                    }
+                    handleOtpBackspace(currentBox);
                 }
             }
 
@@ -111,8 +100,32 @@ public class VerifyOtpSignupActivity extends AppCompatActivity implements View.O
         otpBox2.addTextChangedListener(otpTextWatcher);
         otpBox3.addTextChangedListener(otpTextWatcher);
         otpBox4.addTextChangedListener(otpTextWatcher);
+    }
 
-        //  Handle resend OTP
+    private void handleOtpBackspace(EditText currentBox) {
+        currentBox.clearFocus();
+        if (currentBox == otpBox1) {
+            otpBox1.requestFocus();
+        } else if (currentBox == otpBox2) {
+            otpBox1.requestFocus();
+        } else if (currentBox == otpBox3) {
+            otpBox2.requestFocus();
+        } else if (currentBox == otpBox4) {
+            otpBox3.requestFocus();
+        }
+    }
+
+    private void handleOtpForward(EditText currentBox) {
+        if (currentBox == otpBox1) {
+            otpBox2.requestFocus();
+        } else if (currentBox == otpBox2) {
+            otpBox3.requestFocus();
+        } else if (currentBox == otpBox3) {
+            otpBox4.requestFocus();
+        }
+    }
+
+    private void setResendTimer() {
         resendTimer = new CountDownTimer(60000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {

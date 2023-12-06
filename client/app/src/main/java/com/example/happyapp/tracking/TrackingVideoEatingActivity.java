@@ -1,8 +1,12 @@
 package com.example.happyapp.tracking;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -16,33 +20,56 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 
+import com.example.happyapp.MainActivity;
 import com.example.happyapp.R;
+import com.example.happyapp.api.ApiHelper;
+import com.example.happyapp.dialog.LoadingDialog;
+import com.example.happyapp.model.Question;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import es.dmoral.toasty.Toasty;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class TrackingVideoEatingActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView backButton;
     private LinearLayout questionLayout;
     private List<String[]> questionList;
     private Button submitButton;
+    private String email;
     private List<String> userAnswers;
+    private LoadingDialog loadingDialog;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tracking_video_eating);
+        setContentView(R.layout.activity_tracking_video_drinking);
         findView();
         setListeners();
         loadQuestionSetFromCSV();
         displayQuestions();
+        loadingDialog = new LoadingDialog(TrackingVideoEatingActivity.this);
+        sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+
+        email = getEmailFromSharedPreferences();
 
         userAnswers = new ArrayList<>();
     }
@@ -141,9 +168,86 @@ public class TrackingVideoEatingActivity extends AppCompatActivity implements Vi
         }
 
         if (allQuestionsAnswered) {
-            // All questions answered, proceed with the necessary actions
+            String videoUriString = getIntent().getStringExtra("videoUri");
+            File videoFile = saveVideoToFile(videoUriString);
+
+            loadingDialog.show();
+
+            List<Question> questions = new ArrayList<>();
+            for (int i = 0; i < questionList.size(); i++) {
+                String[] question = questionList.get(i);
+                String questionText = question[0];
+                String answer = userAnswers.get(i);
+                Question q = new Question(questionText, answer);
+                questions.add(q);
+            }
+
+            ApiHelper.behaviorVideo(email, "eating", videoFile, questions, new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (response.isSuccessful()) {
+                                Toasty.success(TrackingVideoEatingActivity.this, "Submit successfully!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(TrackingVideoEatingActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                try {
+                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                    String errorMessage = errorResponse.getString("error");
+                                    Toasty.error(TrackingVideoEatingActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                } catch (JSONException | IOException e) {
+                                    e.printStackTrace();
+                                    Toasty.error(TrackingVideoEatingActivity.this, "Failed to submit 1.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            loadingDialog.dismiss();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toasty.error(TrackingVideoEatingActivity.this, "Failed to submit 2.", Toast.LENGTH_SHORT).show();
+                            loadingDialog.dismiss();
+                        }
+                    });
+                }
+            });
         } else {
             Toasty.warning(this, "Please answer all questions!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private File saveVideoToFile(String videoUriString) {
+        File videoFile = null;
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String fileName = "video_" + timeStamp + ".mp4";
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+            videoFile = new File(storageDir, fileName);
+
+            try (InputStream inputStream = getContentResolver().openInputStream(Uri.parse(videoUriString));
+                 OutputStream outputStream = new FileOutputStream(videoFile)) {
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return videoFile;
+    }
+
+    private String getEmailFromSharedPreferences() {
+        return sharedPreferences.getString("email", "");
     }
 }

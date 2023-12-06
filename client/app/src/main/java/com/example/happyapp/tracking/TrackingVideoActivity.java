@@ -84,9 +84,9 @@ public class TrackingVideoActivity extends AppCompatActivity implements View.OnC
 
             Intent intent;
             if (selectedBehavior.equals("Eating")) {
-                intent = new Intent(this, TrackingCameraEatingActivity.class);
+                intent = new Intent(this, TrackingVideoEatingActivity.class);
             } else if (selectedBehavior.equals("Drinking")) {
-                intent = new Intent(this, TrackingCameraDrinkingActivity.class);
+                intent = new Intent(this, TrackingVideoDrinkingActivity.class);
             } else {
                 return;
             }

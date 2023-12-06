@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const sensorSchema = new mongoose.Schema({
   email: {
@@ -24,4 +24,4 @@ const sensorSchema = new mongoose.Schema({
 
 const Sensor = mongoose.model("Sensor", sensorSchema);
 
-module.exports = Sensor;
+export default Sensor;

@@ -1,10 +1,17 @@
 package com.example.happyapp.sensor;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -14,6 +21,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +34,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.happyapp.R;
 
@@ -37,13 +46,12 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
     private TextView tvMagnetic, tvTemperature, tvProximity, tvPressure, tvLight, tvHumidity,
             tvLatitude, tvLongitude, tvAccelerometer, tvGyroscope, tvStepDetector, tvListSensor,
-            tvAltitude, tvBluetoothName, tvBluetoothMAC;
+            tvAltitude, tvWifi, tvBluetooth;
     private List<Sensor> deviceSensors;
     private SensorManager sensorManagers;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
     private WifiManager wifiManager;
-    private BroadcastReceiver wifiScanReceiver;
     private LocationManager locationManager;
     private Vibrator vibrator;
     private Sensor sensorHumidity, sensorLight, sensorMagnetic, sensorPressure, sensorTemperature,
@@ -51,6 +59,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     ;
     private static final int REQUEST_ACCESS_FINE_LOCATION = 100;
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+    private static final int REQUEST_CHANGE_WIFI_STATE = 101;
     private final static int REQUEST_ENABLE_BT = 1;
     private int stepDetect = 0;
     private SharedPreferences sharedPreferences;
@@ -70,8 +79,8 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         tvStepDetector = findViewById(R.id.stepDetector);
         tvAltitude = findViewById(R.id.altitude);
         tvListSensor = findViewById(R.id.listSensor);
-        tvBluetoothName = findViewById(R.id.bluetoothName);
-        tvBluetoothMAC = findViewById(R.id.bluetoothMAC);
+        tvWifi = findViewById(R.id.wifi);
+        tvBluetooth = findViewById(R.id.bluetooth);
     }
 
     @Override
@@ -81,8 +90,8 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         userEmail = getEmailFromSharedPreferences();
-//        Intent serviceIntent = new Intent(getContext(), SensorService.class);
-//        ContextCompat.startForegroundService(getContext(), serviceIntent);
+//        Intent serviceIntent = new Intent(getApplicationContext(), SensorService.class);
+//        ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
 
         findView();
 
@@ -112,6 +121,13 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
             Toasty.info(getApplicationContext(), "Location & file access Permission Granted", Toast.LENGTH_SHORT);
         }
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.BLUETOOTH},
+                    REQUEST_ENABLE_BT);
+            return;
+        }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 1, new LocationListener() {
             @Override
@@ -136,95 +152,102 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
             }
         });
+        startWifiScan();
+//        startBluetoothScan();
         printSensors();
     }
 
-//    private void startWifiScan() {
-//        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//
-//        if (wifiManager == null || !wifiManager.isWifiEnabled()) {
-//            // Wi-Fi is not supported or not enabled
-//            // Handle this scenario appropriately (e.g., show an error message)
-//            return;
-//        }
-//
-//        // Request the necessary runtime permission if not granted
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_ACCESS_FINE_LOCATION);
-//            return;
-//        }
-//
-//        wifiScanReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
-//                    List<ScanResult> scanResults = wifiManager.getScanResults();
-//                    for (ScanResult scanResult : scanResults) {
-//                        String ssid = scanResult.SSID;
-//                        String bssid = scanResult.BSSID;
-//
-//                        // Display the ssid and bssid on the screen
-//                        // Replace `textViewSSID` and `textViewBSSID` with your TextViews
-//                        textViewSSID.setText(ssid);
-//                        textViewBSSID.setText(bssid);
-//                    }
-//                }
-//            }
-//        };
-//
-//        registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//        wifiManager.startScan();
-//    }
 
-//    private void startBluetoothScan() {
-//        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-//        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-//
-//        if (bluetoothAdapter == null) {
-//            Toasty.error(SensorsActivity.this, "Not found BT!", Toast.LENGTH_SHORT).show();
-//        } else {
-//            if (!bluetoothAdapter.isEnabled()) {
-//                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-//            }
-//        }
-//
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-//        }
-//
-//
-//        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
-//        scanCallback = new ScanCallback() {
-//            @Override
-//            public void onScanResult(int callbackType, ScanResult result) {
-//                BluetoothDevice device = result.getDevice();
-//                String deviceName = device.getName();
-//                String deviceAddress = device.getAddress();
-//
-//                tvBluetoothName.setText(deviceName);
-//                tvBluetoothMAC.setText(deviceAddress);
-//            }
-//
-//            @Override
-//            public void onScanFailed(int errorCode) {
-//                // Handle scan failure
-//                // Show an error message or take appropriate action
-//            }
-//        };
-//
-//        ScanSettings scanSettings = new ScanSettings.Builder()
-//                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-//                .build();
-//
-//        bluetoothLeScanner.startScan(null, scanSettings, scanCallback);
-//    }
+    private void startWifiScan() {
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null || !wifiManager.isWifiEnabled()) {
+            // Wi-Fi is not supported or not enabled
+            // Handle this scenario appropriately (e.g., show an error message)
+            return;
+        }
+        // Check if the app has CHANGE_WIFI_STATE permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CHANGE_WIFI_STATE},
+                    REQUEST_CHANGE_WIFI_STATE);
+            return; // Do not proceed with Wi-Fi scan until permission is granted
+        }
+
+        BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
+                    @SuppressLint("MissingPermission") List<ScanResult> scanResults = wifiManager.getScanResults();
+                    StringBuilder wifiNetworks = new StringBuilder();
+
+                    for (ScanResult scanResult : scanResults) {
+                        String ssid = scanResult.SSID;
+                        String bssid = scanResult.BSSID;
+
+                        wifiNetworks.append("SSID: ").append(ssid).append("\n")
+                                .append("BSSID: ").append(bssid).append("\n\n");
+                    }
+
+                    tvWifi.setText(wifiNetworks.toString());
+                }
+            }
+        };
+        wifiManager.startScan();
+        registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+    }
+
+
+    private void startBluetoothScan() {
+
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter == null) {
+            Toasty.error(SensorsActivity.this, "Not found BT!", Toast.LENGTH_SHORT).show();
+        } else {
+            if (!bluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startForegroundService(enableBtIntent);
+            }
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+
+        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        scanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, android.bluetooth.le.ScanResult result) {
+                super.onScanResult(callbackType, result);
+                BluetoothDevice device = result.getDevice();
+                @SuppressLint("MissingPermission") String deviceName = device.getName();
+                String deviceAddress = device.getAddress();
+
+                String deviceInfo = "Name: " + deviceName + "\n" + "Address: " + deviceAddress + "\n\n";
+                tvBluetooth.append(deviceInfo);
+            }
+
+
+            @Override
+            public void onScanFailed(int errorCode) {
+                // Handle scan failure
+                // Show an error message or take appropriate action
+            }
+        };
+
+        ScanSettings scanSettings = new ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build();
+
+        bluetoothLeScanner.startScan(null, scanSettings, scanCallback);
+    }
 
 
     private void printSensors() {

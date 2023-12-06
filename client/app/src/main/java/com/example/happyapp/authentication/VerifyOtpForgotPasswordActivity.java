@@ -43,7 +43,15 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
         setContentView(R.layout.activity_verify_otp_forgot_password);
 
         email = getIntent().getStringExtra("email");
+        loadingDialog = new LoadingDialog(VerifyOtpForgotPasswordActivity.this);
 
+        findViews();
+        setListeners();
+        setOtpTextWatcher();
+        setResendTimer();
+    }
+
+    private void findViews() {
         backButton = findViewById(R.id.backButton);
         resendButton = findViewById(R.id.resend);
         otpBox1 = findViewById(R.id.otpBox1);
@@ -51,13 +59,15 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
         otpBox3 = findViewById(R.id.otpBox3);
         otpBox4 = findViewById(R.id.otpBox4);
         submit = findViewById(R.id.submit);
+    }
 
-        loadingDialog = new LoadingDialog(VerifyOtpForgotPasswordActivity.this);
-
+    private void setListeners() {
         backButton.setOnClickListener(this);
         resendButton.setOnClickListener(this);
         submit.setOnClickListener(this);
+    }
 
+    private void setOtpTextWatcher() {
         TextWatcher otpTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -68,32 +78,11 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
                 EditText currentBox = (EditText) getCurrentFocus();
 
                 if (currentBox != null && s.length() == 0 && start == 0 && before == 1) {
-                    currentBox.clearFocus();
-                    if (currentBox == otpBox1) {
-                        otpBox1.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox1.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox4) {
-                        otpBox3.requestFocus();
-                    }
+                    handleOtpBackspace(currentBox);
                 } else if (currentBox != null && s.length() == 1 && start == 0 && before == 0) {
-                    if (currentBox == otpBox1) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox3.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox4.requestFocus();
-                    }
+                    handleOtpForward(currentBox);
                 } else if (currentBox != null && s.length() == 0 && start == 1 && before == 0) {
-                    if (currentBox == otpBox4) {
-                        otpBox3.requestFocus();
-                    } else if (currentBox == otpBox3) {
-                        otpBox2.requestFocus();
-                    } else if (currentBox == otpBox2) {
-                        otpBox1.requestFocus();
-                    }
+                    handleOtpBackspace(currentBox);
                 }
             }
 
@@ -106,8 +95,32 @@ public class VerifyOtpForgotPasswordActivity extends AppCompatActivity implement
         otpBox2.addTextChangedListener(otpTextWatcher);
         otpBox3.addTextChangedListener(otpTextWatcher);
         otpBox4.addTextChangedListener(otpTextWatcher);
+    }
 
-        //  Handle resend OTP
+    private void handleOtpBackspace(EditText currentBox) {
+        currentBox.clearFocus();
+        if (currentBox == otpBox1) {
+            otpBox1.requestFocus();
+        } else if (currentBox == otpBox2) {
+            otpBox1.requestFocus();
+        } else if (currentBox == otpBox3) {
+            otpBox2.requestFocus();
+        } else if (currentBox == otpBox4) {
+            otpBox3.requestFocus();
+        }
+    }
+
+    private void handleOtpForward(EditText currentBox) {
+        if (currentBox == otpBox1) {
+            otpBox2.requestFocus();
+        } else if (currentBox == otpBox2) {
+            otpBox3.requestFocus();
+        } else if (currentBox == otpBox3) {
+            otpBox4.requestFocus();
+        }
+    }
+
+    private void setResendTimer() {
         resendTimer = new CountDownTimer(60000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {

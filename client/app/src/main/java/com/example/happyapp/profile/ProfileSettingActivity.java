@@ -3,7 +3,6 @@ package com.example.happyapp.profile;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -52,7 +51,7 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
         changeName = findViewById(R.id.changeName);
 
         loadingDialog = new LoadingDialog(ProfileSettingActivity.this);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
 
         email = getEmailFromSharedPreferences();
 

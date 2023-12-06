@@ -23,4 +23,5 @@
     <color name="green_neon">#006400</color>
     <color name="lavender">#8692F7</color>
     <color name="gray">#ccc</color>
+    <color name="underline">#D8D6D6</color>
 </resources>

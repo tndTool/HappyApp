@@ -4,8 +4,4 @@
         android:id="@+id/menu_photo"
         android:icon="@drawable/photo_camera_icon"
         android:title="Take Photo" />
-    <item
-        android:id="@+id/menu_video"
-        android:icon="@drawable/video_camera_icon"
-        android:title="Record Video" />
 </menu>

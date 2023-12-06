@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -22,9 +22,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  otpCreatedAt: {
+    type: Date,
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = User;
+export default User;

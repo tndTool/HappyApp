@@ -35,13 +35,18 @@ public class FillEmailForgotPasswordActivity extends AppCompatActivity implement
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fill_email_forgot_password);
+        findViews();
+        setListeners();
+        loadingDialog = new LoadingDialog(FillEmailForgotPasswordActivity.this);
+    }
 
+    private void findViews() {
         email = findViewById(R.id.email);
         send = findViewById(R.id.send);
         backButton = findViewById(R.id.backButton);
+    }
 
-        loadingDialog = new LoadingDialog(FillEmailForgotPasswordActivity.this);
-
+    private void setListeners() {
         backButton.setOnClickListener(this);
         send.setOnClickListener(this);
     }

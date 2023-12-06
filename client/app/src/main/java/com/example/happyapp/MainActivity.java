@@ -1,5 +1,6 @@
 package com.example.happyapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -7,7 +8,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(new HomeFragment());
         binding.bottomNavigationView.setBackground(null);
 
+        if (getIntent().getBooleanExtra("showVideoPopup", false)) {
+            showRecordVideoDialog();
+        }
+
         binding.bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         binding.cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showCameraOptions(view);
+                dispatchTakePictureIntent();
             }
         });
 
@@ -109,26 +113,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showCameraOptions(View view) {
-        PopupMenu popupMenu = new PopupMenu(MainActivity.this, view);
-        popupMenu.getMenuInflater().inflate(R.menu.camera_menu, popupMenu.getMenu());
-
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.menu_photo) {
-                    dispatchTakePictureIntent();
-                    return true;
-                } else if (item.getItemId() == R.id.menu_video) {
+    private void showRecordVideoDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Record Video")
+                .setMessage("Do you want to record a video?")
+                .setPositiveButton("Yes", (dialog, which) -> {
                     dispatchRecordVideoIntent();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        popupMenu.show();
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
+
 
     private void dispatchTakePictureIntent() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

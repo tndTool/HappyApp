@@ -1,28 +1,17 @@
-const express = require("express");
-const nodemailer = require("nodemailer");
-const User = require("../models/user.js");
-const Sensor = require("../models/sensor.js");
+import express from "express";
+import User from "../models/User.js";
+import transporter from "../configs/nodemailer.config.js";
 
 const router = express.Router();
 
 function generateOTP() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+  const createdAt = Date.now();
+  return { otp, createdAt };
 }
 
-// Setup nodemailer:
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: ["smtp.gmail.com", "smtp.mailinator.com", "smtp.yopmail.com"],
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.USER_NODEMAILER,
-    pass: process.env.PASS_NODEMAILER,
-  },
-});
-
 // Register:
-router.post("/api/register", async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -43,17 +32,18 @@ router.post("/api/register", async (req, res) => {
       });
     }
 
-    if (password.length < 8 || password.length > 16) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        error: "Password should be between 8 and 16 characters long.",
+        error: "Password should be more than 8 characters.",
       });
     }
 
     if (existingUser && !existingUser.isVerified) {
       existingUser.name = name;
       existingUser.password = password;
-      existingUser.otp = generateOTP();
+      existingUser.otp = generateOTP().otp;
+      existingUser.otpCreatedAt = Date.now();
       await existingUser.save();
 
       const mailOptions = {
@@ -76,17 +66,18 @@ router.post("/api/register", async (req, res) => {
       return res.status(200).json({
         success: true,
         message:
-          "Verification code sent. Please check your email for the verify code.",
+          "Verification code sent. Please check your email for the verification code.",
       });
     }
 
-    const otp = generateOTP();
+    const { otp, createdAt } = generateOTP();
 
     const user = new User({
       name,
       email,
       password,
       otp,
+      otpCreatedAt: createdAt,
     });
 
     await user.save();
@@ -96,13 +87,13 @@ router.post("/api/register", async (req, res) => {
       to: email,
       subject: "Account Verification",
       html: `
-      <h1>Welcome to Happy App!</h1>
-      <p>Thank you for registering an account with us.</p>
-      <p>Please use the verification code below to complete your account setup:</p>
-      <h2 style="color: #ff0000;">OTP: ${otp}</h2>
-      <p>If you did not sign up for an account, please ignore this email.</p>
-      <p>Best regards,</p>
-      <p>The Happy App Team</p>
+        <h1>Welcome to Happy App!</h1>
+        <p>Thank you for registering an account with us.</p>
+        <p>Please use the verification code below to complete your account setup:</p>
+        <h2 style="color: #ff0000;">OTP: ${otp}</h2>
+        <p>If you did not sign up for an account, please ignore this email.</p>
+        <p>Best regards,</p>
+        <p>The Happy App Team</p>
       `,
     };
 
@@ -118,18 +109,36 @@ router.post("/api/register", async (req, res) => {
   }
 });
 
-router.post("/api/verify", async (req, res) => {
+router.post("/verify", async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email, otp });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: "Invalid OTP." });
+      return res.status(404).json({ success: false, error: "User not found." });
+    }
+
+    if (user.isVerified) {
+      return res
+        .status(400)
+        .json({ success: false, error: "User already verified." });
+    }
+
+    const now = Date.now();
+    const otpCreatedAt = user.otpCreatedAt;
+
+    if (now - otpCreatedAt > 120000) {
+      return res
+        .status(400)
+        .json({ success: false, error: "OTP has expired." });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ success: false, error: "Invalid OTP." });
     }
 
     user.isVerified = true;
-
     await user.save();
 
     res
@@ -140,7 +149,7 @@ router.post("/api/verify", async (req, res) => {
   }
 });
 
-router.post("/api/resendOtp", async (req, res) => {
+router.post("/resendOtp", async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -150,10 +159,40 @@ router.post("/api/resendOtp", async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found." });
     }
 
-    const otp = generateOTP();
+    const now = Date.now();
+    const otpCreatedAt = user.otpCreatedAt;
 
-    user.otp = otp;
-    await user.save();
+    if (now - otpCreatedAt > 120000) {
+      const otp = generateOTP();
+      user.otp = otp.otp;
+      user.otpCreatedAt = otp.createdAt;
+      await user.save();
+
+      const mailOptions = {
+        to: email,
+        from: {
+          name: "Happy App",
+          email: process.env.EMAIL_FROM,
+        },
+        subject: "Account Verification",
+        html: `
+          <h1>Welcome to Happy App!</h1>
+          <p>Thank you for registering an account with us.</p>
+          <p>Please use the verification code below to complete your account setup:</p>
+          <h2 style="color: #ff0000;">OTP: ${otp.otp}</h2>
+          <p>If you did not sign up for an account, please ignore this email.</p>
+          <p>Best regards,</p>
+          <p>The Happy App Team</p>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      return res.status(200).json({
+        success: true,
+        message: "OTP sent successfully. Please check your email.",
+      });
+    }
 
     const mailOptions = {
       to: email,
@@ -163,13 +202,13 @@ router.post("/api/resendOtp", async (req, res) => {
       },
       subject: "Account Verification",
       html: `
-      <h1>Welcome to Happy App!</h1>
-      <p>Thank you for registering an account with us.</p>
-      <p>Please use the verification code below to complete your account setup:</p>
-      <h2 style="color: #ff0000;">OTP: ${otp}</h2>
-      <p>If you did not sign up for an account, please ignore this email.</p>
-      <p>Best regards,</p>
-      <p>The Happy App Team</p>
+        <h1>Welcome to Happy App!</h1>
+        <p>Thank you for registering an account with us.</p>
+        <p>Please use the verification code below to complete your account setup:</p>
+        <h2 style="color: #ff0000;">OTP: ${user.otp}</h2>
+        <p>If you did not sign up for an account, please ignore this email.</p>
+        <p>Best regards,</p>
+        <p>The Happy App Team</p>
       `,
     };
 
@@ -185,7 +224,7 @@ router.post("/api/resendOtp", async (req, res) => {
 });
 
 // Login:
-router.post("/api/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -216,7 +255,7 @@ router.post("/api/login", async (req, res) => {
 });
 
 // Forgot password:
-router.post("/api/forgotpassword/sendotp", async (req, res) => {
+router.post("/forgotpassword/sendotp", async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -226,9 +265,10 @@ router.post("/api/forgotpassword/sendotp", async (req, res) => {
       return res.status(404).json({ success: false, error: "User not found." });
     }
 
-    const otp = generateOTP();
+    const { otp, createdAt } = generateOTP();
 
     user.otp = otp;
+    user.otpCreatedAt = createdAt;
     await user.save();
 
     const mailOptions = {
@@ -260,25 +300,38 @@ router.post("/api/forgotpassword/sendotp", async (req, res) => {
   }
 });
 
-router.post("/api/forgotpassword/verifyotp", async (req, res) => {
+router.post("/forgotpassword/verifyotp", async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email, otp });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ success: false, error: "Invalid OTP." });
+      return res.status(404).json({ success: false, error: "User not found." });
+    }
+
+    const now = Date.now();
+    const otpCreatedAt = user.otpCreatedAt;
+
+    if (now - otpCreatedAt > 120000) {
+      return res
+        .status(400)
+        .json({ success: false, error: "OTP has expired." });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ success: false, error: "Invalid OTP." });
     }
 
     res
       .status(200)
-      .json({ success: true, message: "OTP verified successfully." });
+      .json({ success: true, message: "Email verified successfully." });
   } catch (error) {
     res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
-router.post("/api/forgotpassword/resetpassword", async (req, res) => {
+router.post("/forgotpassword/resetpassword", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -288,10 +341,10 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
       return res.status(404).json({ success: false, error: "Invalid email." });
     }
 
-    if (password.length < 8 || password.length > 16) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        error: "Password should be between 8 and 16 characters long.",
+        error: "Password should be more than 8 characters.",
       });
     }
 
@@ -306,113 +359,4 @@ router.post("/api/forgotpassword/resetpassword", async (req, res) => {
   }
 });
 
-// Get player info:
-router.get("/api/user/:email", async (req, res) => {
-  try {
-    const email = req.params.email;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const userInfo = {
-      name: user.name,
-      email: user.email,
-      joinDate: user.createdAt,
-    };
-
-    res.status(200).json(userInfo);
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Internal server error." });
-  }
-});
-
-module.exports = router;
-
-// Change name:
-router.put("/api/user/changename", async (req, res) => {
-  try {
-    const { email, name } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (name.length > 30) {
-      return res.status(400).json({
-        success: false,
-        error: "Name should be less than 30 characters.",
-      });
-    }
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.name = name;
-    await user.save();
-
-    res.status(200).json({ message: "Name changed successfully", user });
-  } catch (err) {
-    res.status(500).json({ success: false, error: "Internal server error." });
-  }
-});
-
-// Change password:
-router.post("/api/user/changepassword", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ success: false, error: "Invalid email." });
-    }
-
-    if (password.length < 8 || password.length > 16) {
-      return res.status(400).json({
-        success: false,
-        error: "Password should be between 8 and 16 characters long.",
-      });
-    }
-
-    user.password = password;
-    await user.save();
-
-    res
-      .status(200)
-      .json({ success: true, message: "Password change successfully." });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Internal server error." });
-  }
-});
-
-// Save sensor data:
-router.post("/api/sensor/data", async (req, res) => {
-  try {
-    const { email, values } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    const sensorData = values.map(({ sensor, value }) => ({
-      sensor,
-      value,
-    }));
-
-    const newData = new Sensor({
-      email,
-      values: sensorData,
-    });
-
-    await newData.save();
-
-    return res.status(201).json({ message: "Data saved successfully" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
+export default router;

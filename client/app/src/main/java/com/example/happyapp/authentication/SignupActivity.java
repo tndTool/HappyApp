@@ -40,15 +40,21 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
+        findViews();
+        setListeners();
+        loadingDialog = new LoadingDialog(SignupActivity.this);
+    }
+
+    private void findViews() {
         backButton = findViewById(R.id.backButton);
         signupButton = findViewById(R.id.signupButton);
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         confirmPassword = findViewById(R.id.confirmPassword);
+    }
 
-        loadingDialog = new LoadingDialog(SignupActivity.this);
-
+    private void setListeners() {
         backButton.setOnClickListener(this);
         password.setOnTouchListener(this);
         confirmPassword.setOnTouchListener(this);
