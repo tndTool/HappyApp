@@ -15,7 +15,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class UserRepository {
+public class ProfileRepository {
     public interface UserCallback {
         void onSuccess(User user);
 

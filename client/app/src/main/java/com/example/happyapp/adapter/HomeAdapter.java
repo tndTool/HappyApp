@@ -7,10 +7,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.happyapp.R;
 import com.example.happyapp.model.History;
+import com.example.happyapp.model.HistoryDiffCallback;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.squareup.picasso.Picasso;
 
@@ -46,9 +48,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         return historyList.size();
     }
 
-    public void setHistoryList(List<History> historyList) {
-        this.historyList = historyList;
-        notifyDataSetChanged();
+    public void setHistoryList(List<History> newHistoryList) {
+        HistoryDiffCallback diffCallback = new HistoryDiffCallback(historyList, newHistoryList);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+        historyList.clear();
+        historyList.addAll(newHistoryList);
+
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -69,7 +76,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             String formattedDate = dateFormat.format(history.getCreateAt());
             tvCreateAt.setText(formattedDate);
 
-            Picasso.get().load(history.getTitleImage()).into(titleImage);
+            Picasso.get()
+                    .load(history.getTitleImage())
+                    .fit()
+                    .centerCrop()
+                    .into(titleImage);
         }
     }
 }

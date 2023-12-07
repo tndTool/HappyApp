@@ -56,7 +56,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_margin="8dp"
-        android:background="@color/underline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_image" />
 

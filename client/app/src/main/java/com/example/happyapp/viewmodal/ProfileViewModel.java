@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.happyapp.model.User;
 
-public class UserViewModel extends ViewModel {
+public class ProfileViewModel extends ViewModel {
     private MutableLiveData<User> userLiveData;
-    private UserRepository userRepository;
+    private ProfileRepository userRepository;
 
-    public UserViewModel() {
-        userRepository = new UserRepository();
+    public ProfileViewModel() {
+        userRepository = new ProfileRepository();
         userLiveData = new MutableLiveData<>();
     }
 
@@ -21,7 +21,7 @@ public class UserViewModel extends ViewModel {
 
 
     public void fetchUserInfo(String userEmail) {
-        userRepository.getUserInfo(userEmail, new UserRepository.UserCallback() {
+        userRepository.getUserInfo(userEmail, new ProfileRepository.UserCallback() {
             @Override
             public void onSuccess(User user) {
                 userLiveData.postValue(user);

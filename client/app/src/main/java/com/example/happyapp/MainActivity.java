@@ -24,7 +24,7 @@ import com.example.happyapp.fragment.HomeFragment;
 import com.example.happyapp.fragment.ProfileFragment;
 import com.example.happyapp.tracking.TrackingCameraActivity;
 import com.example.happyapp.tracking.TrackingVideoActivity;
-import com.example.happyapp.viewmodal.UserViewModel;
+import com.example.happyapp.viewmodal.ProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import es.dmoral.toasty.Toasty;
@@ -32,7 +32,6 @@ import es.dmoral.toasty.Toasty;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private UserViewModel userViewModel;
     private String userEmail;
     private Uri videoUri;
     private ActivityResultLauncher<Intent> takePictureLauncher;
@@ -45,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         userEmail = getIntent().getStringExtra("email");
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         replaceFragment(new HomeFragment());
         binding.bottomNavigationView.setBackground(null);
@@ -61,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomeFragment());
                 } else if (item.getItemId() == R.id.profile) {
                     ProfileFragment profileFragment = new ProfileFragment();
-                    userViewModel.fetchUserInfo(userEmail);
                     replaceFragment(profileFragment);
                 }
                 return true;

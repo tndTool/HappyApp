@@ -24,17 +24,16 @@ import com.example.happyapp.profile.NotificationSettingActivity;
 import com.example.happyapp.profile.PrivacySettingActivity;
 import com.example.happyapp.profile.ProfileSettingActivity;
 import com.example.happyapp.profile.SendUsActivity;
-import com.example.happyapp.viewmodal.UserViewModel;
+import com.example.happyapp.viewmodal.ProfileViewModel;
 
 public class ProfileFragment extends Fragment {
 
     private TextView nameText;
     private TextView mailText;
     private Button logoutButton;
-    private UserViewModel userViewModel;
+    private ProfileViewModel userViewModel;
     private LoadingDialog loadingDialog;
     private SharedPreferences sharedPreferences;
-    private boolean isUserInfoFetched = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,14 +45,13 @@ public class ProfileFragment extends Fragment {
         logoutButton = rootView.findViewById(R.id.logoutButton);
         loadingDialog = new LoadingDialog(getActivity());
 
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
         sharedPreferences = getActivity().getSharedPreferences(getActivity().getPackageName(), Context.MODE_PRIVATE);
 
         String userEmail = getEmailFromSharedPreferences();
 
-        if (!isUserInfoFetched && !userEmail.isEmpty()) {
+        if (!userEmail.isEmpty()) {
             fetchUserInfo(userEmail);
-            isUserInfoFetched = true;
         }
 
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), user -> {
@@ -147,9 +145,8 @@ public class ProfileFragment extends Fragment {
         super.onResume();
         String userEmail = getEmailFromSharedPreferences();
 
-        if (!isUserInfoFetched && !userEmail.isEmpty()) {
+        if (!userEmail.isEmpty()) {
             fetchUserInfo(userEmail);
-            isUserInfoFetched = true;
         }
     }
 

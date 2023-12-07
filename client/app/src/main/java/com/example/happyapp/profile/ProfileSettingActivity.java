@@ -7,27 +7,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.happyapp.R;
-import com.example.happyapp.api.ApiHelper;
 import com.example.happyapp.dialog.LoadingDialog;
+import com.example.happyapp.viewmodal.ProfileViewModel;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import es.dmoral.toasty.Toasty;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class ProfileSettingActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -37,6 +27,7 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
     private String email;
     private LoadingDialog loadingDialog;
     private SharedPreferences sharedPreferences;
+    private ProfileViewModel profileViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,66 +43,37 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
 
         loadingDialog = new LoadingDialog(ProfileSettingActivity.this);
         sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
         email = getEmailFromSharedPreferences();
 
         loadingDialog.show();
 
-        ApiHelper.getUserInfo(email, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toasty.error(ProfileSettingActivity.this, "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+        if (!email.isEmpty()) {
+            fetchUserInfo(email);
+        }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    final String responseData = response.body().string();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                JSONObject userJson = new JSONObject(responseData);
-                                String name = userJson.getString("name");
-                                String email = userJson.getString("email");
-                                String joinDate = userJson.getString("joinDate");
-
-                                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                                Date date = inputFormat.parse(joinDate);
-                                String formattedJoinDate = outputFormat.format(date);
-
-                                nameText.setText(name);
-                                emailText.setText(email);
-                                timeText.setText(formattedJoinDate);
-                            } catch (JSONException | ParseException e) {
-                                e.printStackTrace();
-                            } finally {
-                                loadingDialog.dismiss();
-                            }
-                        }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toasty.error(ProfileSettingActivity.this, "Failed to fetch user information.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    loadingDialog.dismiss();
-                }
-            }
+        profileViewModel.getUserLiveData().observe(this, user -> {
+            nameText.setText(user.getName());
+            timeText.setText(formatDate(user.getCreatedAt()));
+            emailText.setText(user.getEmail());
+            loadingDialog.dismiss();
         });
-
 
         changeName.setOnClickListener(this);
         backButton.setOnClickListener(this);
         changePassword.setOnClickListener(this);
+    }
+
+    private String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return sdf.format(date);
+    }
+
+
+    private void fetchUserInfo(String userEmail) {
+        loadingDialog.show();
+        profileViewModel.fetchUserInfo(userEmail);
     }
 
     @Override
@@ -131,6 +93,16 @@ public class ProfileSettingActivity extends AppCompatActivity implements View.On
             intent.putExtra("email", email);
             startActivity(intent);
             finish();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String userEmail = getEmailFromSharedPreferences();
+
+        if (!userEmail.isEmpty()) {
+            fetchUserInfo(userEmail);
         }
     }
 
