@@ -12,15 +12,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.happyapp.R;
 import com.example.happyapp.model.History;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<History> historyList;
+    private List<History> historyList;
 
-    public HomeAdapter(Context context, ArrayList<History> historyList) {
+    public HomeAdapter(Context context, List<History> historyList) {
         this.context = context;
         this.historyList = historyList;
     }
@@ -43,6 +46,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         return historyList.size();
     }
 
+    public void setHistoryList(List<History> historyList) {
+        this.historyList = historyList;
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private ShapeableImageView titleImage;
         private TextView tvBehavior, tvCreateAt;
@@ -56,8 +64,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
         public void bind(History history) {
             tvBehavior.setText(history.getBehavior());
-            tvCreateAt.setText(history.getCreateAt());
-            titleImage.setImageResource(history.getTitleImage());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm dd/MM/yyyy", Locale.getDefault());
+            String formattedDate = dateFormat.format(history.getCreateAt());
+            tvCreateAt.setText(formattedDate);
+
+            Picasso.get().load(history.getTitleImage()).into(titleImage);
         }
     }
 }

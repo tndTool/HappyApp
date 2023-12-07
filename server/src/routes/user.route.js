@@ -14,6 +14,10 @@ router.get("/:email", async (req, res) => {
       return res.status(404).json({ error: "User not found!" });
     }
 
+    if (!user.isVerified) {
+      return res.status(404).json({ success: false, error: "User not found!" });
+    }
+
     const userInfo = {
       name: user.name,
       email: user.email,
@@ -46,6 +50,10 @@ router.put("/changename", async (req, res) => {
         .json({ success: false, message: "User not found!" });
     }
 
+    if (!user.isVerified) {
+      return res.status(404).json({ success: false, error: "User not found!" });
+    }
+
     user.name = name;
     await user.save();
 
@@ -63,6 +71,10 @@ router.post("/changepassword", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      return res.status(404).json({ success: false, error: "User not found!" });
+    }
+
+    if (!user.isVerified) {
       return res.status(404).json({ success: false, error: "User not found!" });
     }
 

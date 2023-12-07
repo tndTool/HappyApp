@@ -26,39 +26,13 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnPrevious"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:text="Previous" />
-
-        <Button
-            android:id="@+id/btnNext"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:text="Next" />
-
-    </LinearLayout>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="128dp"
         tools:listitem="@layout/items_home_fragment" />

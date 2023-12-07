@@ -1,11 +1,13 @@
 package com.example.happyapp.model;
 
+import java.util.Date;
+
 public class History {
     private String behavior;
-    private String createAt;
-    private int titleImage;
+    private Date createAt;
+    private String titleImage;
 
-    public History(String behavior, String createAt, int titleImage) {
+    public History(String behavior, Date createAt, String titleImage) {
         this.behavior = behavior;
         this.createAt = createAt;
         this.titleImage = titleImage;
@@ -19,19 +21,19 @@ public class History {
         this.behavior = behavior;
     }
 
-    public String getCreateAt() {
+    public Date getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(String createAt) {
+    public void setCreateAt(Date createAt) {
         this.createAt = createAt;
     }
 
-    public int getTitleImage() {
+    public String getTitleImage() {
         return titleImage;
     }
 
-    public void setTitleImage(int titleImage) {
+    public void setTitleImage(String titleImage) {
         this.titleImage = titleImage;
     }
 }
