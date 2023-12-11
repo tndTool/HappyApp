@@ -26,6 +26,19 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/no_history_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="No history available"
+        android:textAllCaps="true"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -36,5 +49,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="128dp"
         tools:listitem="@layout/items_home_fragment" />
+
 
 </LinearLayout>

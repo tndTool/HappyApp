@@ -2,6 +2,7 @@ package com.example.happyapp.api;
 
 import com.example.happyapp.model.Question;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -209,24 +210,27 @@ public class ApiHelper {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void saveDataSensor(String email, String value, Callback callback) {
-        JSONObject requestBody = new JSONObject();
+    public static void saveDataSensor(String email, String sensorData, Callback callback) {
         try {
+            JSONArray valuesArray = new JSONArray(sensorData);
+
+            JSONObject requestBody = new JSONObject();
             requestBody.put("email", email);
-            requestBody.put("value", value);
+            requestBody.put("values", valuesArray);
+
+            OkHttpClient client = new OkHttpClient();
+            MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(mediaType, requestBody.toString());
+
+            Request request = new Request.Builder()
+                    .url(BASE_URL + "sensor/data")
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-
-        Request request = new Request.Builder()
-                .url(BASE_URL + "sensor/data")
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(callback);
     }
 
     public static void behaviorCamera(String email, String behavior, File image, List<Question> questions, Callback callback) {

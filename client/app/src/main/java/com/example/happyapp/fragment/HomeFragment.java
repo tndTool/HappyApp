@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,7 @@ public class HomeFragment extends Fragment {
     private LoadingDialog loadingDialog;
     private SharedPreferences sharedPreferences;
     private HomeViewModel homeViewModel;
+    private TextView noHistoryTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,6 +43,8 @@ public class HomeFragment extends Fragment {
 
         homeAdapter = new HomeAdapter(getActivity(), new ArrayList<>());
         recyclerView.setAdapter(homeAdapter);
+
+        noHistoryTextView = rootView.findViewById(R.id.no_history_textview);
 
         loadingDialog = new LoadingDialog(getActivity());
         loadingDialog.show();
@@ -70,6 +74,12 @@ public class HomeFragment extends Fragment {
 
         if (historyList != null) {
             homeAdapter.setHistoryList(historyList);
+
+            if (historyList.isEmpty()) {
+                noHistoryTextView.setVisibility(View.VISIBLE);
+            } else {
+                noHistoryTextView.setVisibility(View.GONE);
+            }
         } else {
             Toast.makeText(getActivity(), "Failed to fetch behavior information", Toast.LENGTH_SHORT).show();
         }

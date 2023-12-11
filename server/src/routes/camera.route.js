@@ -48,7 +48,9 @@ router.get("/behavior/:email", async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const behaviors = await BehaviorCamera.find({ email });
+    const behaviors = await BehaviorCamera.find({ email })
+      .sort({ createdAt: -1 })
+      .exec();
 
     res.status(200).json(behaviors);
   } catch (error) {

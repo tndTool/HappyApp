@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,17 +36,25 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.happyapp.R;
+import com.example.happyapp.api.ApiHelper;
+import com.example.happyapp.dialog.LoadingDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class SensorsActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView tvMagnetic, tvTemperature, tvProximity, tvPressure, tvLight, tvHumidity,
-            tvLatitude, tvLongitude, tvAccelerometer, tvGyroscope, tvStepDetector, tvListSensor,
+            tvLatitude, tvLongitude, tvAccelerometer, tvGyroscope, tvStepDetector,
             tvAltitude, tvWifi, tvBluetooth;
-    private List<Sensor> deviceSensors;
     private SensorManager sensorManagers;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
@@ -64,6 +71,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     private int stepDetect = 0;
     private SharedPreferences sharedPreferences;
     private String userEmail;
+    private LoadingDialog loadingDialog;
 
     private void findView() {
         tvMagnetic = findViewById(R.id.magnetic);
@@ -78,7 +86,6 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         tvGyroscope = findViewById(R.id.gyroscope);
         tvStepDetector = findViewById(R.id.stepDetector);
         tvAltitude = findViewById(R.id.altitude);
-        tvListSensor = findViewById(R.id.listSensor);
         tvWifi = findViewById(R.id.wifi);
         tvBluetooth = findViewById(R.id.bluetooth);
     }
@@ -88,17 +95,15 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sensors);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+        loadingDialog = new LoadingDialog(SensorsActivity.this);
         userEmail = getEmailFromSharedPreferences();
-//        Intent serviceIntent = new Intent(getApplicationContext(), SensorService.class);
-//        ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
 
         findView();
 
         sensorManagers = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        deviceSensors = sensorManagers.getSensorList(Sensor.TYPE_ALL);
         assert sensorManagers != null;
 
 
@@ -153,8 +158,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
             }
         });
         startWifiScan();
-//        startBluetoothScan();
-        printSensors();
+        startBluetoothScan();
     }
 
 
@@ -186,8 +190,8 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
                         String ssid = scanResult.SSID;
                         String bssid = scanResult.BSSID;
 
-                        wifiNetworks.append("SSID: ").append(ssid).append("\n")
-                                .append("BSSID: ").append(bssid).append("\n\n");
+                        wifiNetworks.append("SSID: ").append(ssid).append(", ")
+                                .append("BSSID: ").append(bssid).append("; ");
                     }
 
                     tvWifi.setText(wifiNetworks.toString());
@@ -230,8 +234,14 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
                 @SuppressLint("MissingPermission") String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
 
-                String deviceInfo = "Name: " + deviceName + "\n" + "Address: " + deviceAddress + "\n\n";
-                tvBluetooth.append(deviceInfo);
+                String deviceInfo = "Name: " + deviceName + ", Address: " + deviceAddress;
+                String currentText = tvBluetooth.getText().toString();
+
+                if (currentText.isEmpty()) {
+                    tvBluetooth.setText(deviceInfo);
+                } else {
+                    tvBluetooth.setText(currentText + "; " + deviceInfo);
+                }
             }
 
 
@@ -250,17 +260,10 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     }
 
 
-    private void printSensors() {
-        for (Sensor sensor : deviceSensors) {
-            tvListSensor.setText(tvListSensor.getText() + "\n" + sensor.getName());
-        }
-    }
-
     protected void onPause() {
         super.onPause();
         sensorManagers.unregisterListener(this);
     }
-
 
     protected void onResume() {
         super.onResume();
@@ -292,7 +295,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         }
     }
 
-    @Override
+  @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x = sensorEvent.values[0];
