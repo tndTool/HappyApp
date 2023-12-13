@@ -25,6 +25,8 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.widget.TextView;
@@ -52,9 +54,7 @@ import okhttp3.Response;
 
 public class SensorsActivity extends AppCompatActivity implements SensorEventListener {
 
-    private TextView tvMagnetic, tvTemperature, tvProximity, tvPressure, tvLight, tvHumidity,
-            tvLatitude, tvLongitude, tvAccelerometer, tvGyroscope, tvStepDetector,
-            tvAltitude, tvWifi, tvBluetooth;
+    private TextView tvWifi, tvBluetooth;
     private SensorManager sensorManagers;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
@@ -64,28 +64,18 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     private Sensor sensorHumidity, sensorLight, sensorMagnetic, sensorPressure, sensorTemperature,
             sensorProximity, sensorAccelerometer, sensorGyroscope, sensorStepDetector;
     ;
-    private static final int REQUEST_ACCESS_FINE_LOCATION = 100;
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
-    private static final int REQUEST_CHANGE_WIFI_STATE = 101;
-    private final static int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_ACCESS_FINE_LOCATION = 100, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0,
+            REQUEST_CHANGE_WIFI_STATE = 101, REQUEST_ENABLE_BT = 1;
+    private static final long DELAY_INTERVAL = 10000;
     private int stepDetect = 0;
     private SharedPreferences sharedPreferences;
-    private String userEmail;
+    private String userEmail, magneticData, temperatureData, proximityData, pressureData, lightData, humidityData,
+            gpsData, accelerometerData, gyroscopeData, stepDetectorData, wifiData, bluetoothData;
     private LoadingDialog loadingDialog;
+    private Handler handler;
+    private Runnable apiRunnable;
 
     private void findView() {
-        tvMagnetic = findViewById(R.id.magnetic);
-        tvTemperature = findViewById(R.id.temperature);
-        tvProximity = findViewById(R.id.proximity);
-        tvPressure = findViewById(R.id.pressure);
-        tvLight = findViewById(R.id.light);
-        tvHumidity = findViewById(R.id.humidity);
-        tvLatitude = findViewById(R.id.latitude);
-        tvLongitude = findViewById(R.id.longitude);
-        tvAccelerometer = findViewById(R.id.accelerometer);
-        tvGyroscope = findViewById(R.id.gyroscope);
-        tvStepDetector = findViewById(R.id.stepDetector);
-        tvAltitude = findViewById(R.id.altitude);
         tvWifi = findViewById(R.id.wifi);
         tvBluetooth = findViewById(R.id.bluetooth);
     }
@@ -105,7 +95,6 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         assert sensorManagers != null;
-
 
         sensorHumidity = sensorManagers.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
         sensorLight = sensorManagers.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -137,9 +126,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 1, new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
-                tvLongitude.setText("Longitude: " + String.valueOf(location.getLongitude()));
-                tvLatitude.setText("Latitude: " + String.valueOf(location.getLatitude()));
-                tvAltitude.setText("Attitude: " + String.valueOf(location.getAltitude()));
+                gpsData = "Longitude: " + String.valueOf(location.getLongitude()) + ", Latitude: " + String.valueOf(location.getLatitude()) + ", Attitude: " + String.valueOf(location.getAltitude());
             }
 
             @Override
@@ -157,26 +144,83 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
 
             }
         });
+
+        handler = new Handler(Looper.getMainLooper());
+        apiRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isLoggedIn()) {
+                    magneticData = (sensorMagnetic == null) ? "" : magneticData;
+                    temperatureData = (sensorTemperature == null) ? "" : temperatureData;
+                    proximityData = (sensorProximity == null) ? "" : proximityData;
+                    pressureData = (sensorPressure == null) ? "" : pressureData;
+                    lightData = (sensorLight == null) ? "" : lightData;
+                    humidityData = (sensorHumidity == null) ? "" : humidityData;
+                    gpsData = (locationManager == null) ? "" : gpsData;
+                    accelerometerData = (sensorAccelerometer == null) ? "" : accelerometerData;
+                    gyroscopeData = (sensorGyroscope == null) ? "" : gyroscopeData;
+                    stepDetectorData = (sensorStepDetector == null) ? "" : stepDetectorData;
+                    wifiData = (wifiManager == null) ? "" : wifiData;
+                    bluetoothData = (bluetoothLeScanner == null) ? "" : bluetoothData;
+                    loadingDialog.show();
+                    ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
+                            pressureData, lightData, humidityData, gpsData, accelerometerData, gyroscopeData,
+                            stepDetectorData, wifiData, bluetoothData, new Callback() {
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (response.isSuccessful()) {
+                                                Toasty.success(SensorsActivity.this, "Save sensor data successfully!", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                try {
+                                                    JSONObject errorResponse = new JSONObject(response.body().string());
+                                                    String errorMessage = errorResponse.getString("error");
+                                                    Toasty.error(SensorsActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                                } catch (JSONException | IOException e) {
+                                                    e.printStackTrace();
+                                                    Toasty.error(SensorsActivity.this, "Failed to save sensor data.", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                            loadingDialog.dismiss();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toasty.error(SensorsActivity.this, "External sever in SensorsActivity.", Toast.LENGTH_SHORT).show();
+                                            loadingDialog.dismiss();
+                                        }
+                                    });
+                                }
+                            });
+                }
+                handler.postDelayed(apiRunnable, DELAY_INTERVAL);
+            }
+        };
+
         startWifiScan();
-        startBluetoothScan();
+       startBluetoothScan();
     }
 
 
     private void startWifiScan() {
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (wifiManager == null || !wifiManager.isWifiEnabled()) {
-            // Wi-Fi is not supported or not enabled
-            // Handle this scenario appropriately (e.g., show an error message)
             return;
         }
-        // Check if the app has CHANGE_WIFI_STATE permission
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Request the permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CHANGE_WIFI_STATE},
                     REQUEST_CHANGE_WIFI_STATE);
-            return; // Do not proceed with Wi-Fi scan until permission is granted
+            return;
         }
 
         BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
@@ -195,6 +239,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
                     }
 
                     tvWifi.setText(wifiNetworks.toString());
+                    wifiData = wifiNetworks.toString();
                 }
             }
         };
@@ -209,12 +254,11 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (bluetoothAdapter == null) {
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
             Toasty.error(SensorsActivity.this, "Not found BT!", Toast.LENGTH_SHORT).show();
-        } else {
-            if (!bluetoothAdapter.isEnabled()) {
+            if (bluetoothAdapter != null) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startForegroundService(enableBtIntent);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
         }
 
@@ -234,21 +278,14 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
                 @SuppressLint("MissingPermission") String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
 
-                String deviceInfo = "Name: " + deviceName + ", Address: " + deviceAddress;
-                String currentText = tvBluetooth.getText().toString();
-
-                if (currentText.isEmpty()) {
-                    tvBluetooth.setText(deviceInfo);
-                } else {
-                    tvBluetooth.setText(currentText + "; " + deviceInfo);
-                }
+                String bluetoothInfo = "Name: " + deviceName + ", Address: " + deviceAddress + ";";
+                tvBluetooth.setText(bluetoothInfo);
+                bluetoothData = bluetoothInfo;
             }
 
 
             @Override
             public void onScanFailed(int errorCode) {
-                // Handle scan failure
-                // Show an error message or take appropriate action
             }
         };
 
@@ -263,6 +300,7 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
     protected void onPause() {
         super.onPause();
         sensorManagers.unregisterListener(this);
+        handler.removeCallbacks(apiRunnable);
     }
 
     protected void onResume() {
@@ -287,6 +325,8 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         registerSensorListener(isSwitchSensorAccelerometer, sensorAccelerometer);
         registerSensorListener(isSwitchSensorGyroscope, sensorGyroscope);
         registerSensorListener(isSwitchSensorStepDetector, sensorStepDetector);
+
+        handler.post(apiRunnable);
     }
 
     private void registerSensorListener(boolean shouldRegister, Sensor sensor) {
@@ -295,43 +335,51 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         }
     }
 
-  @Override
+    @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
 
-            tvAccelerometer.setText("Accelerometer: x = " + x + ", y = " + y + ", z = " + z);
+            accelerometerData = "x=" + x + ", y=" + y + ", z=" + z;
         }
+
         if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
 
-            tvGyroscope.setText("Gyroscope: x = " + x + ", y = " + y + ", z = " + z);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
-            tvHumidity.setText("Humidity = " + sensorEvent.values[0]);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT) {
-            tvLight.setText("Light = " + sensorEvent.values[0]);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) {
-            tvMagnetic.setText("Magnetic = " + sensorEvent.values[0]);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_PRESSURE) {
-            tvPressure.setText("Pressure = " + sensorEvent.values[0]);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
-            tvTemperature.setText("Ambient temperature = " + sensorEvent.values[0]);
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-            tvProximity.setText("Proximity = " + sensorEvent.values[0]);
+            gyroscopeData = "x=" + x + ", y=" + y + ", z=" + z;
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
+            humidityData = String.valueOf(sensorEvent.values[0]);
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT) {
+            lightData = String.valueOf(sensorEvent.values[0]);
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) {
+            magneticData = String.valueOf(sensorEvent.values[0]);
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_PRESSURE) {
+            pressureData = String.valueOf(sensorEvent.values[0]);
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+            temperatureData = String.valueOf(sensorEvent.values[0]);
+        }
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            proximityData = String.valueOf(sensorEvent.values[0]);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
             } else {
                 vibrator.vibrate(500);
             }
-        } else if (sensorEvent.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            stepDetect = (int) (stepDetect + sensorEvent.values[0]);
-            tvStepDetector.setText("Step detector: " + String.valueOf(stepDetect));
         }
-
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            stepDetect = (int) (stepDetect + sensorEvent.values[0]);
+            stepDetectorData = String.valueOf(stepDetect);
+        }
     }
 
     @Override

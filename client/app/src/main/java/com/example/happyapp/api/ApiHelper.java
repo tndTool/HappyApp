@@ -17,8 +17,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    //    private static final String BASE_URL = "https://happy-app-server.vercel.app/api/";
-    private static final String BASE_URL = "http://192.168.1.16:5000/api/";
+    private static final String BASE_URL = "https://happy-app-server.onrender.com/api/";
+//    private static final String BASE_URL = "http://192.168.1.29:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
         JSONObject requestBody = new JSONObject();
@@ -210,9 +210,72 @@ public class ApiHelper {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void saveDataSensor(String email, String sensorData, Callback callback) {
+    public static void saveDataSensor(String email, String magneticData, String temperatureData, String proximityData,
+                                      String pressureData, String lightData, String humidityData, String gpsData,
+                                      String accelerometerData, String gyroscopeData, String stepDetectorData,
+                                      String wifiData, String bluetoothData, Callback callback) {
         try {
-            JSONArray valuesArray = new JSONArray(sensorData);
+            JSONArray valuesArray = new JSONArray();
+
+            JSONObject magneticObject = new JSONObject();
+            magneticObject.put("sensor", "Magnetic");
+            magneticObject.put("value", magneticData);
+            valuesArray.put(magneticObject);
+
+            JSONObject temperatureObject = new JSONObject();
+            temperatureObject.put("sensor", "Temperature");
+            temperatureObject.put("value", temperatureData);
+            valuesArray.put(temperatureObject);
+
+            JSONObject proximityObject = new JSONObject();
+            proximityObject.put("sensor", "Proximity");
+            proximityObject.put("value", proximityData);
+            valuesArray.put(proximityObject);
+
+            JSONObject pressureObject = new JSONObject();
+            pressureObject.put("sensor", "Pressure");
+            pressureObject.put("value", pressureData);
+            valuesArray.put(pressureObject);
+
+            JSONObject lightObject = new JSONObject();
+            lightObject.put("sensor", "Light");
+            lightObject.put("value", lightData);
+            valuesArray.put(lightObject);
+
+            JSONObject humidityObject = new JSONObject();
+            humidityObject.put("sensor", "Humidity");
+            humidityObject.put("value", humidityData);
+            valuesArray.put(humidityObject);
+
+            JSONObject gpsObject = new JSONObject();
+            gpsObject.put("sensor", "GPS");
+            gpsObject.put("value", gpsData);
+            valuesArray.put(gpsObject);
+
+            JSONObject accelerometerObject = new JSONObject();
+            accelerometerObject.put("sensor", "Accelerometer");
+            accelerometerObject.put("value", accelerometerData);
+            valuesArray.put(accelerometerObject);
+
+            JSONObject gyroscopeObject = new JSONObject();
+            gyroscopeObject.put("sensor", "Gyroscope");
+            gyroscopeObject.put("value", gyroscopeData);
+            valuesArray.put(gyroscopeObject);
+
+            JSONObject stepDetectorObject = new JSONObject();
+            stepDetectorObject.put("sensor", "StepDetector");
+            stepDetectorObject.put("value", stepDetectorData);
+            valuesArray.put(stepDetectorObject);
+
+            JSONObject wifiObject = new JSONObject();
+            wifiObject.put("sensor", "Wifi");
+            wifiObject.put("value", wifiData);
+            valuesArray.put(wifiObject);
+
+            JSONObject bluetoothObject = new JSONObject();
+            bluetoothObject.put("sensor", "Bluetooth");
+            bluetoothObject.put("value", bluetoothData);
+            valuesArray.put(bluetoothObject);
 
             JSONObject requestBody = new JSONObject();
             requestBody.put("email", email);

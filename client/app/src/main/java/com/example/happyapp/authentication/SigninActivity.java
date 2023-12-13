@@ -167,7 +167,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void redirectToMainActivity() {
-        Intent intent = new Intent(SigninActivity.this, MainActivity.class);
+        Intent intent = new Intent(SigninActivity.this, SensorsActivity.class);
         startActivity(intent);
         finish();
     }

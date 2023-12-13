@@ -42,6 +42,7 @@ dependencies {
 
     implementation("com.github.GrenderG:Toasty:1.5.2")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("androidx.work:work-runtime:2.7.0")
     implementation("com.airbnb.android:lottie:5.2.0")
     implementation("androidx.preference:preference:1.2.0")
     implementation("com.squareup.picasso:picasso:2.71828")
