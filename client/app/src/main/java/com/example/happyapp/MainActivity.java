@@ -45,6 +45,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.happyapp.api.ApiHelper;
 import com.example.happyapp.databinding.ActivityMainBinding;
@@ -53,6 +59,7 @@ import com.example.happyapp.fragment.HomeFragment;
 import com.example.happyapp.fragment.ProfileFragment;
 import com.example.happyapp.tracking.TrackingCameraActivity;
 import com.example.happyapp.tracking.TrackingVideoActivity;
+import com.example.happyapp.worker.SaveDataSensorWorker;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -60,6 +67,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
@@ -227,6 +235,62 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         startWifiScan();
         startBluetoothScan();
+
+        PeriodicWorkRequest saveDataSensorWork = new PeriodicWorkRequest.Builder(SaveDataSensorWorker.class, 5, TimeUnit.MINUTES)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(saveDataSensorWork);
+
+        checkDataSensor();
+    }
+
+    private void checkDataSensor() {
+        magneticData = (sensorMagnetic == null) ? "" : magneticData;
+        temperatureData = (sensorTemperature == null) ? "" : temperatureData;
+        proximityData = (sensorProximity == null) ? "" : proximityData;
+        pressureData = (sensorPressure == null) ? "" : pressureData;
+        lightData = (sensorLight == null) ? "" : lightData;
+        humidityData = (sensorHumidity == null) ? "" : humidityData;
+        accelerometerData = (sensorAccelerometer == null) ? "" : accelerometerData;
+        gyroscopeData = (sensorGyroscope == null) ? "" : gyroscopeData;
+        stepDetectorData = (sensorStepDetector == null) ? "" : stepDetectorData;
+
+        enqueueSensorDataWorker(userEmail, magneticData, temperatureData, proximityData, pressureData,
+                lightData, humidityData, gpsData, accelerometerData, gyroscopeData, stepDetectorData,
+                wifiData, bluetoothData);
+    }
+
+    private void enqueueSensorDataWorker(String userEmail, String magneticData, String temperatureData, String proximityData,
+                                         String pressureData, String lightData, String humidityData, String gpsData, String accelerometerData,
+                                         String gyroscopeData, String stepDetectorData, String wifiData, String bluetoothData) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        Data inputData = new Data.Builder()
+                .putString("userEmail", userEmail)
+                .putString("magneticData", magneticData)
+                .putString("temperatureData", temperatureData)
+                .putString("proximityData", proximityData)
+                .putString("pressureData", pressureData)
+                .putString("lightData", lightData)
+                .putString("humidityData", humidityData)
+                .putString("gpsData", gpsData)
+                .putString("accelerometerData", accelerometerData)
+                .putString("gyroscopeData", gyroscopeData)
+                .putString("stepDetectorData", stepDetectorData)
+                .putString("wifiData", wifiData)
+                .putString("bluetoothData", bluetoothData)
+                .build();
+
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(SaveDataSensorWorker.class)
+                .setConstraints(constraints)
+                .setInputData(inputData)
+                .build();
+
+        WorkManager workManager = WorkManager.getInstance(this);
+        workManager.enqueue(workRequest);
     }
 
     private void showRecordVideoDialog() {
@@ -383,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         registerSensorListener(isSwitchSensorStepDetector, sensorStepDetector);
 
         if (handler != null && apiRunnable != null) {
-            handler.post(apiRunnable);
+            handler.postDelayed(apiRunnable, 10000);
         }
     }
 
@@ -444,21 +508,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void run() {
                 if (isLoggedIn()) {
-                    magneticData = (sensorMagnetic == null) ? "" : magneticData;
-                    temperatureData = (sensorTemperature == null) ? "" : temperatureData;
-                    proximityData = (sensorProximity == null) ? "" : proximityData;
-                    pressureData = (sensorPressure == null) ? "" : pressureData;
-                    lightData = (sensorLight == null) ? "" : lightData;
-                    humidityData = (sensorHumidity == null) ? "" : humidityData;
-                    gpsData = (locationManager == null) ? "" : gpsData;
-                    accelerometerData = (sensorAccelerometer == null) ? "" : accelerometerData;
-                    gyroscopeData = (sensorGyroscope == null) ? "" : gyroscopeData;
-                    stepDetectorData = (sensorStepDetector == null) ? "" : stepDetectorData;
-                    wifiData = (wifiManager == null) ? "" : wifiData;
-                    bluetoothData = (bluetoothLeScanner == null) ? "" : bluetoothData;
-
                     loadingDialog.show();
-
                     ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
                             pressureData, lightData, humidityData, gpsData, accelerometerData, gyroscopeData,
                             stepDetectorData, wifiData, bluetoothData, new Callback() {
