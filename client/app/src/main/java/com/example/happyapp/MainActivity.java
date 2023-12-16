@@ -29,6 +29,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -47,6 +48,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -60,6 +62,11 @@ import com.example.happyapp.fragment.ProfileFragment;
 import com.example.happyapp.tracking.TrackingCameraActivity;
 import com.example.happyapp.tracking.TrackingVideoActivity;
 import com.example.happyapp.worker.SaveDataSensorWorker;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -87,18 +94,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ScanCallback scanCallback;
     private WifiManager wifiManager;
     private LocationManager locationManager;
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private Vibrator vibrator;
     private Sensor sensorHumidity, sensorLight, sensorMagnetic, sensorPressure, sensorTemperature,
             sensorProximity, sensorAccelerometer, sensorGyroscope, sensorStepDetector;
     private static final int REQUEST_ACCESS_FINE_LOCATION = 100;
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int REQUEST_CHANGE_WIFI_STATE = 101;
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final long DELAY_INTERVAL = 60 * 1000 * 5;
+    private static final long DELAY_INTERVAL = 60 * 1000 * 15;
+    private static final long DELAY_LOCATION = 60 * 1000 * 14;
+    private static final String TAG_WORKER = "saveDataSensorWorker";
     private int stepDetect = 0;
     private SharedPreferences sharedPreferences;
     private String userEmail, magneticData, temperatureData, proximityData, pressureData, lightData, humidityData,
-            gpsData, accelerometerData, gyroscopeData, stepDetectorData, wifiData, bluetoothData;
+            gpsData, networkLocationData, accelerometerData, gyroscopeData, stepDetectorData, wifiData, bluetoothData;
     private LoadingDialog loadingDialog;
     private Handler handler;
     private Runnable apiRunnable;
@@ -203,14 +212,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toasty.info(getApplicationContext(), "Location & file access Permission Granted", Toast.LENGTH_SHORT);
         }
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.BLUETOOTH},
-                    REQUEST_ENABLE_BT);
-            return;
-        }
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 1, new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
@@ -233,15 +234,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(DELAY_LOCATION);
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    networkLocationData = "Longitude: " + location.getLongitude() + ", Latitude: " + location.getLatitude() + ", Attitude: " + location.getAltitude();
+                }
+            }
+        }, Looper.getMainLooper());
+
         startWifiScan();
+
         startBluetoothScan();
 
-        PeriodicWorkRequest saveDataSensorWork = new PeriodicWorkRequest.Builder(SaveDataSensorWorker.class, 5, TimeUnit.MINUTES)
+        checkDataSensor();
+
+        PeriodicWorkRequest saveDataSensorWork = new PeriodicWorkRequest.Builder(SaveDataSensorWorker.class, 15, TimeUnit.MINUTES)
                 .build();
 
-        WorkManager.getInstance(this).enqueue(saveDataSensorWork);
-
-        checkDataSensor();
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                TAG_WORKER,
+                ExistingPeriodicWorkPolicy.KEEP,
+                saveDataSensorWork
+        );
     }
 
     private void checkDataSensor() {
@@ -256,12 +278,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         stepDetectorData = (sensorStepDetector == null) ? "" : stepDetectorData;
 
         enqueueSensorDataWorker(userEmail, magneticData, temperatureData, proximityData, pressureData,
-                lightData, humidityData, gpsData, accelerometerData, gyroscopeData, stepDetectorData,
+                lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData, stepDetectorData,
                 wifiData, bluetoothData);
     }
 
     private void enqueueSensorDataWorker(String userEmail, String magneticData, String temperatureData, String proximityData,
-                                         String pressureData, String lightData, String humidityData, String gpsData, String accelerometerData,
+                                         String pressureData, String lightData, String humidityData, String gpsData, String networkLocationData, String accelerometerData,
                                          String gyroscopeData, String stepDetectorData, String wifiData, String bluetoothData) {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -277,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .putString("lightData", lightData)
                 .putString("humidityData", humidityData)
                 .putString("gpsData", gpsData)
+                .putString("networkLocationData", networkLocationData)
                 .putString("accelerometerData", accelerometerData)
                 .putString("gyroscopeData", gyroscopeData)
                 .putString("stepDetectorData", stepDetectorData)
@@ -355,8 +378,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String ssid = scanResult.SSID;
                         String bssid = scanResult.BSSID;
 
-                        wifiNetworks.append("SSID: ").append(ssid).append(", ")
-                                .append("BSSID: ").append(bssid).append("; ");
+                        if (!ssid.isEmpty()) {
+                            wifiNetworks.append("SSID: ").append(ssid).append(", ")
+                                    .append("BSSID: ").append(bssid).append("; ");
+                        }
                     }
 
                     wifiData = wifiNetworks.toString();
@@ -381,11 +406,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    new String[]{Manifest.permission.BLUETOOTH},
+                    REQUEST_ENABLE_BT);
+            return;
         }
 
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -397,10 +423,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 @SuppressLint("MissingPermission") String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
 
-                String bluetoothInfo = "Name: " + deviceName + ", Address: " + deviceAddress + ";";
-                bluetoothData = bluetoothInfo;
-            }
+                StringBuilder bluetoothInfoBuilder = new StringBuilder();
+                if (deviceName != null) {
+                    bluetoothInfoBuilder.append("Name: ").append(deviceName).append(", ");
+                }
+                bluetoothInfoBuilder.append("Address: ").append(deviceAddress).append(";");
 
+                bluetoothData = bluetoothInfoBuilder.toString();
+            }
 
             @Override
             public void onScanFailed(int errorCode) {
@@ -509,8 +539,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void run() {
                 if (isLoggedIn()) {
                     loadingDialog.show();
-                    ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
-                            pressureData, lightData, humidityData, gpsData, accelerometerData, gyroscopeData,
+                    ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData, pressureData,
+                            lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData,
                             stepDetectorData, wifiData, bluetoothData, new Callback() {
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
@@ -562,4 +592,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean isLoggedIn() {
         return sharedPreferences.getBoolean("isLoggedIn", false);
     }
+
 }

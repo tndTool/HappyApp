@@ -19,7 +19,6 @@ import com.example.happyapp.MainActivity;
 import com.example.happyapp.R;
 import com.example.happyapp.api.ApiHelper;
 import com.example.happyapp.dialog.LoadingDialog;
-import com.example.happyapp.sensor.SensorsActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

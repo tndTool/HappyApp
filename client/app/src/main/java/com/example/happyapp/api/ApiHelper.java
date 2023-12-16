@@ -213,8 +213,8 @@ public class ApiHelper {
 
     public static void saveDataSensor(String email, String magneticData, String temperatureData, String proximityData,
                                       String pressureData, String lightData, String humidityData, String gpsData,
-                                      String accelerometerData, String gyroscopeData, String stepDetectorData,
-                                      String wifiData, String bluetoothData, Callback callback) {
+                                      String networkLocationData, String accelerometerData, String gyroscopeData,
+                                      String stepDetectorData, String wifiData, String bluetoothData, Callback callback) {
         try {
             JSONArray valuesArray = new JSONArray();
 
@@ -249,9 +249,14 @@ public class ApiHelper {
             valuesArray.put(humidityObject);
 
             JSONObject gpsObject = new JSONObject();
-            gpsObject.put("sensor", "GPS");
+            gpsObject.put("sensor", "GPS Location");
             gpsObject.put("value", gpsData);
             valuesArray.put(gpsObject);
+
+            JSONObject networkLocationObject = new JSONObject();
+            networkLocationObject.put("sensor", "Network Location");
+            networkLocationObject.put("value", networkLocationData);
+            valuesArray.put(networkLocationObject);
 
             JSONObject accelerometerObject = new JSONObject();
             accelerometerObject.put("sensor", "Accelerometer");

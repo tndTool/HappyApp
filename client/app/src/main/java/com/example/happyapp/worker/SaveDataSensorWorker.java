@@ -3,6 +3,7 @@ package com.example.happyapp.worker;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,7 +31,8 @@ public class SaveDataSensorWorker extends Worker {
     @Override
     public Result doWork() {
         String userEmail = getInputData().getString("userEmail");
-        if (!userEmail.isEmpty()) {
+        if (userEmail != null && !userEmail.isEmpty()) {
+            Log.d("SaveDataSensorWorker", "Worker is running in the background");
             String magneticData = getInputData().getString("magneticData");
             String temperatureData = getInputData().getString("temperatureData");
             String proximityData = getInputData().getString("proximityData");
@@ -38,6 +40,7 @@ public class SaveDataSensorWorker extends Worker {
             String lightData = getInputData().getString("lightData");
             String humidityData = getInputData().getString("humidityData");
             String gpsData = getInputData().getString("gpsData");
+            String networkLocationData = getInputData().getString("networkLocationData");
             String accelerometerData = getInputData().getString("accelerometerData");
             String gyroscopeData = getInputData().getString("gyroscopeData");
             String stepDetectorData = getInputData().getString("stepDetectorData");
@@ -45,7 +48,7 @@ public class SaveDataSensorWorker extends Worker {
             String bluetoothData = getInputData().getString("bluetoothData");
 
             ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
-                    pressureData, lightData, humidityData, gpsData, accelerometerData, gyroscopeData,
+                    pressureData, lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData,
                     stepDetectorData, wifiData, bluetoothData, new Callback() {
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {

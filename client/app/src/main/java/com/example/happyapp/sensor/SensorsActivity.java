@@ -19,6 +19,7 @@ import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.happyapp.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
@@ -35,21 +41,23 @@ import es.dmoral.toasty.Toasty;
 
 public class SensorsActivity extends AppCompatActivity {
 
-    private TextView tvWifi, tvBluetooth, tvGPS;
+    private TextView tvWifi, tvBluetooth, tvGPS, tvNetworkLocation;
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanCallback scanCallback;
     private WifiManager wifiManager;
     private LocationManager locationManager;
+    private static final long DELAY_INTERVAL = 60 * 1000 * 1;
     private static final int REQUEST_ACCESS_FINE_LOCATION = 100;
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
     private static final int REQUEST_CHANGE_WIFI_STATE = 101;
     private static final int REQUEST_ENABLE_BT = 1;
-    private String gpsData;
+    private String gpsData, networkLocationData;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     private void findView() {
         tvWifi = findViewById(R.id.wifi);
         tvBluetooth = findViewById(R.id.bluetooth);
         tvGPS = findViewById(R.id.gps);
+        tvNetworkLocation = findViewById(R.id.networkLocation);
     }
 
     @Override
@@ -67,14 +75,6 @@ public class SensorsActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(SensorsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_ACCESS_FINE_LOCATION);
         } else {
             Toasty.info(getApplicationContext(), "Location & file access Permission Granted", Toast.LENGTH_SHORT);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.BLUETOOTH},
-                    REQUEST_ENABLE_BT);
-            return;
         }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 1, new LocationListener() {
@@ -99,6 +99,23 @@ public class SensorsActivity extends AppCompatActivity {
 
             }
         });
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(DELAY_INTERVAL);
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    networkLocationData = "Longitude: " + location.getLongitude() + ", Latitude: " + location.getLatitude() + ", Attitude: " + location.getAltitude();
+                    tvNetworkLocation.setText(networkLocationData);
+                }
+            }
+        }, Looper.getMainLooper());
 
 
         startWifiScan();
@@ -130,8 +147,10 @@ public class SensorsActivity extends AppCompatActivity {
                         String ssid = scanResult.SSID;
                         String bssid = scanResult.BSSID;
 
-                        wifiNetworks.append("SSID: ").append(ssid).append(", ")
-                                .append("BSSID: ").append(bssid).append("; ");
+                        if (!ssid.isEmpty()) {
+                            wifiNetworks.append("SSID: ").append(ssid).append(", ")
+                                    .append("BSSID: ").append(bssid).append("; ");
+                        }
                     }
 
                     tvWifi.setText(wifiNetworks.toString());
@@ -156,11 +175,12 @@ public class SensorsActivity extends AppCompatActivity {
             }
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    new String[]{Manifest.permission.BLUETOOTH},
+                    REQUEST_ENABLE_BT);
+            return;
         }
 
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -172,7 +192,13 @@ public class SensorsActivity extends AppCompatActivity {
                 @SuppressLint("MissingPermission") String deviceName = device.getName();
                 String deviceAddress = device.getAddress();
 
-                String bluetoothInfo = "Name: " + deviceName + ", Address: " + deviceAddress + ";";
+                StringBuilder bluetoothInfoBuilder = new StringBuilder();
+                if (deviceName != null) {
+                    bluetoothInfoBuilder.append("Name: ").append(deviceName).append(", ");
+                }
+                bluetoothInfoBuilder.append("Address: ").append(deviceAddress).append(";");
+
+                String bluetoothInfo = bluetoothInfoBuilder.toString();
                 tvBluetooth.setText(bluetoothInfo);
             }
 
