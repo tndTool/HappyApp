@@ -1,4 +1,4 @@
-package com.example.happyapp.tracking;
+package com.example.happyapp.tracking.camera;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -57,7 +57,7 @@ public class TrackingCameraDrinkingActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tracking_camera_eating);
+        setContentView(R.layout.activity_tracking_camera_eating_screen1);
         findView();
         setListeners();
         loadQuestionSetFromCSV();
@@ -94,7 +94,7 @@ public class TrackingCameraDrinkingActivity extends AppCompatActivity implements
         questionList = new ArrayList<>();
 
         try {
-            InputStream inputStream = getResources().openRawResource(R.raw.drinking);
+            InputStream inputStream = getResources().openRawResource(R.raw.question_screen4);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
 

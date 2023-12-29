@@ -47,30 +47,30 @@ public class SaveDataSensorWorker extends Worker {
             String wifiData = getInputData().getString("wifiData");
             String bluetoothData = getInputData().getString("bluetoothData");
 
-            ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
-                    pressureData, lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData,
-                    stepDetectorData, wifiData, bluetoothData, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (response.isSuccessful()) {
-                                showToast("Save sensor data successfully!", Toast.LENGTH_SHORT);
-                            } else {
-                                try {
-                                    JSONObject errorResponse = new JSONObject(response.body().string());
-                                    String errorMessage = errorResponse.getString("error");
-                                    showToast(errorMessage, Toast.LENGTH_SHORT);
-                                } catch (JSONException | IOException e) {
-                                    e.printStackTrace();
-                                    showToast("Failed to save sensor data.", Toast.LENGTH_SHORT);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            showToast("External server error.", Toast.LENGTH_SHORT);
-                        }
-                    });
+//            ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData,
+//                    pressureData, lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData,
+//                    stepDetectorData, wifiData, bluetoothData, new Callback() {
+//                        @Override
+//                        public void onResponse(Call call, Response response) throws IOException {
+//                            if (response.isSuccessful()) {
+//                                showToast("Save sensor data successfully!", Toast.LENGTH_SHORT);
+//                            } else {
+//                                try {
+//                                    JSONObject errorResponse = new JSONObject(response.body().string());
+//                                    String errorMessage = errorResponse.getString("error");
+//                                    showToast(errorMessage, Toast.LENGTH_SHORT);
+//                                } catch (JSONException | IOException e) {
+//                                    e.printStackTrace();
+//                                    showToast("Failed to save sensor data.", Toast.LENGTH_SHORT);
+//                                }
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call call, IOException e) {
+//                            showToast("External server error.", Toast.LENGTH_SHORT);
+//                        }
+//                    });
         }
 
         return Result.success();

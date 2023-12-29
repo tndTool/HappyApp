@@ -1,4 +1,4 @@
-package com.example.happyapp.tracking;
+package com.example.happyapp.tracking.camera;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,7 +19,7 @@ import es.dmoral.toasty.Toasty;
 public class TrackingCameraActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView photoImageView;
     private Button backButton, nextButton;
-    private String[] behaviors = {"Eating", "Drinking"};
+    private String[] behaviors = {"Eating"};
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayAdapter<String> adapterItems;
 
@@ -72,12 +72,10 @@ public class TrackingCameraActivity extends AppCompatActivity implements View.On
             }
 
             Bitmap photo = getIntent().getParcelableExtra("photo");
-            
+
             Intent intent;
             if (selectedBehavior.equals("Eating")) {
-                intent = new Intent(this, TrackingCameraEatingActivity.class);
-            } else if (selectedBehavior.equals("Drinking")) {
-                intent = new Intent(this, TrackingCameraDrinkingActivity.class);
+                intent = new Intent(this, TrackingCameraEatingScreen1Activity.class);
             } else {
                 return;
             }

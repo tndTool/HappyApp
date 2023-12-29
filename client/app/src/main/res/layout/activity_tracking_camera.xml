@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".tracking.TrackingCameraActivity">
+    tools:context=".tracking.camera.TrackingCameraActivity">
 
 
     <ImageView

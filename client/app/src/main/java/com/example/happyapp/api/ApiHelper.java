@@ -17,8 +17,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    private static final String BASE_URL = "https://happy-app-server.onrender.com/api/";
-//    private static final String BASE_URL = "https://happy-app-server.vercel.app/api/";
+    private static final String BASE_URL_VIDEO = "https://happy-app-server.onrender.com/api/";
+    private static final String BASE_URL = "https://happy-app-server.vercel.app/api/";
 //    private static final String BASE_URL = "http://192.168.1.29:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
@@ -316,8 +316,8 @@ public class ApiHelper {
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
             requestBodyBuilder
-                    .addFormDataPart("questions[" + i + "][question]", question.getQuestion())
-                    .addFormDataPart("questions[" + i + "][answer]", question.getAnswer());
+                    .addFormDataPart("questions[" + i + "][question]", question.getQuestionText())
+                    .addFormDataPart("questions[" + i + "][answer]", question.getAnswerText());
         }
 
         RequestBody requestBody = requestBodyBuilder.build();
@@ -344,14 +344,14 @@ public class ApiHelper {
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
             requestBodyBuilder
-                    .addFormDataPart("questions[" + i + "][question]", question.getQuestion())
-                    .addFormDataPart("questions[" + i + "][answer]", question.getAnswer());
+                    .addFormDataPart("questions[" + i + "][question]", question.getQuestionText())
+                    .addFormDataPart("questions[" + i + "][answer]", question.getAnswerText());
         }
 
         RequestBody requestBody = requestBodyBuilder.build();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "video/behavior")
+                .url(BASE_URL_VIDEO + "video/behavior")
                 .post(requestBody)
                 .build();
 

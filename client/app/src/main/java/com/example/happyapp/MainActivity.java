@@ -377,10 +377,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     for (ScanResult scanResult : scanResults) {
                         String ssid = scanResult.SSID;
                         String bssid = scanResult.BSSID;
+                        int signalLevel = scanResult.level;
 
                         if (!ssid.isEmpty()) {
                             wifiNetworks.append("SSID: ").append(ssid).append(", ")
-                                    .append("BSSID: ").append(bssid).append("; ");
+                                    .append("BSSID: ").append(bssid).append(", ")
+                                    .append("Signal Level: ").append(signalLevel).append("dBm")
+                                    .append("; ");
                         }
                     }
 
@@ -394,16 +397,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startBluetoothScan() {
-
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            Toasty.error(MainActivity.this, "Not found BT!", Toast.LENGTH_SHORT).show();
-            if (bluetoothAdapter != null) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            }
+            return;
         }
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH)

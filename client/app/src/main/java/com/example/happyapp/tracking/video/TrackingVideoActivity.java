@@ -1,4 +1,4 @@
-package com.example.happyapp.tracking;
+package com.example.happyapp.tracking.video;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -21,7 +21,7 @@ public class TrackingVideoActivity extends AppCompatActivity implements View.OnC
     private VideoView videoView;
     private MediaController mediaController;
     private Button backButton, nextButton;
-    private String[] behaviors = {"Eating", "Drinking"};
+    private String[] behaviors = {"Eating"};
     private AutoCompleteTextView autoCompleteTextView;
     private ArrayAdapter<String> adapterItems;
 
@@ -85,8 +85,6 @@ public class TrackingVideoActivity extends AppCompatActivity implements View.OnC
             Intent intent;
             if (selectedBehavior.equals("Eating")) {
                 intent = new Intent(this, TrackingVideoEatingActivity.class);
-            } else if (selectedBehavior.equals("Drinking")) {
-                intent = new Intent(this, TrackingVideoDrinkingActivity.class);
             } else {
                 return;
             }

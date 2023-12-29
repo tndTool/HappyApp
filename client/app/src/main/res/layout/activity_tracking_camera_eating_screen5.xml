@@ -6,7 +6,8 @@
     android:background="@color/primary"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".tracking.video.TrackingVideoEatingActivity">
+    tools:context=".tracking.camera.TrackingCameraEatingScreen5Activity">
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,49 +28,59 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="350dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="30dp"
-        android:layout_weight="1"
         android:background="@drawable/round_bg_secondary"
         android:orientation="vertical"
         android:padding="15dp">
 
         <ScrollView
+
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-                <LinearLayout
-                    android:id="@+id/questionLayout"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="50dp"
+                    android:text="Thank You!"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
 
-
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Thank you for completing the current report.Please click the submit button to complete the survey!"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/submitButton"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:layout_below="@id/questionLayout"
                     android:layout_marginStart="60dp"
                     android:layout_marginTop="30dp"
                     android:layout_marginEnd="60dp"
                     android:layout_marginBottom="20dp"
-                    android:text="Submit"
+                    android:text="submit"
                     android:textAllCaps="true" />
-
-            </RelativeLayout>
+            </LinearLayout>
         </ScrollView>
     </LinearLayout>
-
 
 </LinearLayout>

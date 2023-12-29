@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".tracking.TrackingVideoActivity">
+    tools:context=".tracking.video.TrackingVideoActivity">
 
     <VideoView
         android:id="@+id/capturedVideoView"

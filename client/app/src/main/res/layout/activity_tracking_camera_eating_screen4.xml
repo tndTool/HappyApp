@@ -6,7 +6,7 @@
     android:background="@color/primary"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".tracking.video.TrackingVideoEatingActivity">
+    tools:context=".tracking.camera.TrackingCameraEatingScreen4Activity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,13 +50,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="8dp">
-
-
-                </LinearLayout>
+                    android:padding="8dp"></LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/submitButton"
+                    android:id="@+id/nextButton"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:layout_below="@id/questionLayout"
@@ -64,12 +61,11 @@
                     android:layout_marginTop="30dp"
                     android:layout_marginEnd="60dp"
                     android:layout_marginBottom="20dp"
-                    android:text="Submit"
+                    android:text="next"
                     android:textAllCaps="true" />
 
             </RelativeLayout>
         </ScrollView>
     </LinearLayout>
-
 
 </LinearLayout>

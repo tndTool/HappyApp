@@ -1,4 +1,4 @@
-package com.example.happyapp.tracking;
+package com.example.happyapp.tracking.video;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +47,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class TrackingVideoDrinkingActivity extends AppCompatActivity implements View.OnClickListener {
+public class TrackingVideoEatingActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView backButton;
     private LinearLayout questionLayout;
     private List<String[]> questionList;
@@ -66,7 +66,7 @@ public class TrackingVideoDrinkingActivity extends AppCompatActivity implements 
         setListeners();
         loadQuestionSetFromCSV();
         displayQuestions();
-        loadingDialog = new LoadingDialog(TrackingVideoDrinkingActivity.this);
+        loadingDialog = new LoadingDialog(TrackingVideoEatingActivity.this);
         sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
 
         email = getEmailFromSharedPreferences();
@@ -98,7 +98,7 @@ public class TrackingVideoDrinkingActivity extends AppCompatActivity implements 
         questionList = new ArrayList<>();
 
         try {
-            InputStream inputStream = getResources().openRawResource(R.raw.drinking);
+            InputStream inputStream = getResources().openRawResource(R.raw.question_screen2);
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
 
@@ -182,25 +182,25 @@ public class TrackingVideoDrinkingActivity extends AppCompatActivity implements 
                 questions.add(q);
             }
 
-            ApiHelper.behaviorVideo(email, "drinking", videoFile, questions, new Callback() {
+            ApiHelper.behaviorVideo(email, "eating", videoFile, questions, new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (response.isSuccessful()) {
-                                Toasty.success(TrackingVideoDrinkingActivity.this, "Submit successfully!", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(TrackingVideoDrinkingActivity.this, MainActivity.class);
+                                Toasty.success(TrackingVideoEatingActivity.this, "Submit successfully!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(TrackingVideoEatingActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             } else {
                                 try {
                                     JSONObject errorResponse = new JSONObject(response.body().string());
                                     String errorMessage = errorResponse.getString("error");
-                                    Toasty.error(TrackingVideoDrinkingActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                    Toasty.error(TrackingVideoEatingActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                                 } catch (JSONException | IOException e) {
                                     e.printStackTrace();
-                                    Toasty.error(TrackingVideoDrinkingActivity.this, "Failed to submit 1.", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(TrackingVideoEatingActivity.this, "Failed to submit 1.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             loadingDialog.dismiss();
@@ -213,7 +213,7 @@ public class TrackingVideoDrinkingActivity extends AppCompatActivity implements 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toasty.error(TrackingVideoDrinkingActivity.this, "Failed to submit 2.", Toast.LENGTH_SHORT).show();
+                            Toasty.error(TrackingVideoEatingActivity.this, "Failed to submit 2.", Toast.LENGTH_SHORT).show();
                             loadingDialog.dismiss();
                         }
                     });

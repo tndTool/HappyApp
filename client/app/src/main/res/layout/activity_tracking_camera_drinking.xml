@@ -6,7 +6,7 @@
     android:background="@color/primary"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".tracking.TrackingCameraDrinkingActivity">
+    tools:context=".tracking.camera.TrackingCameraDrinkingActivity">
 
 
     <LinearLayout

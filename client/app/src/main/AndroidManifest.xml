@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -49,22 +48,34 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".tracking.TrackingVideoDrinkingActivity"
+            android:name=".tracking.camera.TrackingCameraEatingScreen5Activity"
             android:exported="false" />
         <activity
-            android:name=".tracking.TrackingVideoEatingActivity"
+            android:name=".tracking.camera.TrackingCameraEatingScreen4Activity"
             android:exported="false" />
         <activity
-            android:name=".tracking.TrackingCameraDrinkingActivity"
+            android:name=".tracking.camera.TrackingCameraEatingScreen3Activity"
             android:exported="false" />
         <activity
-            android:name=".tracking.TrackingCameraEatingActivity"
+            android:name=".tracking.camera.TrackingCameraEatingScreen2Activity"
             android:exported="false" />
         <activity
-            android:name=".tracking.TrackingVideoActivity"
+            android:name=".tracking.video.TrackingVideoDrinkingActivity"
             android:exported="false" />
         <activity
-            android:name=".tracking.TrackingCameraActivity"
+            android:name=".tracking.video.TrackingVideoEatingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".tracking.camera.TrackingCameraDrinkingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".tracking.camera.TrackingCameraEatingScreen1Activity"
+            android:exported="false" />
+        <activity
+            android:name=".tracking.video.TrackingVideoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".tracking.camera.TrackingCameraActivity"
             android:exported="false" />
         <activity
             android:name=".sensor.SensorsActivity"
@@ -120,7 +131,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
