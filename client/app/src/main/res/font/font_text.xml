@@ -3,9 +3,9 @@
     <font
         android:fontStyle="normal"
         android:fontWeight="400"
-        android:font="@font/chrusty" />
+        android:font="@font/roboto" />
     <font
         android:fontStyle="italic"
         android:fontWeight="400"
-        android:font="@font/chrusty" />
+        android:font="@font/roboto" />
 </font-family>

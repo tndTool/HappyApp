@@ -60,13 +60,7 @@
             android:name=".tracking.camera.TrackingCameraEatingScreen2Activity"
             android:exported="false" />
         <activity
-            android:name=".tracking.video.TrackingVideoDrinkingActivity"
-            android:exported="false" />
-        <activity
             android:name=".tracking.video.TrackingVideoEatingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".tracking.camera.TrackingCameraDrinkingActivity"
             android:exported="false" />
         <activity
             android:name=".tracking.camera.TrackingCameraEatingScreen1Activity"

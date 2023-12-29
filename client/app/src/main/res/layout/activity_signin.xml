@@ -10,11 +10,11 @@
 
     <View
         android:id="@+id/logo_app"
-        android:layout_width="232dp"
-        android:layout_height="85dp"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
         android:layout_gravity="center"
         android:layout_marginTop="55dp"
-        android:background="@drawable/logo_app" />
+        android:background="@drawable/banners" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

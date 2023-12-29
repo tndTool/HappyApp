@@ -61,7 +61,7 @@ public class TrackingVideoEatingActivity extends AppCompatActivity implements Vi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tracking_video_drinking);
+        setContentView(R.layout.activity_tracking_video_eating);
         findView();
         setListeners();
         loadQuestionSetFromCSV();
