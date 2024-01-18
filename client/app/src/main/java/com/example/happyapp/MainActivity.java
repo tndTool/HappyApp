@@ -56,7 +56,6 @@ import androidx.work.WorkManager;
 
 import com.example.happyapp.api.ApiHelper;
 import com.example.happyapp.databinding.ActivityMainBinding;
-import com.example.happyapp.dialog.LoadingDialog;
 import com.example.happyapp.fragment.HomeFragment;
 import com.example.happyapp.fragment.ProfileFragment;
 import com.example.happyapp.tracking.camera.TrackingCameraActivity;
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SharedPreferences sharedPreferences;
     private String userEmail, magneticData, temperatureData, proximityData, pressureData, lightData, humidityData,
             gpsData, networkLocationData, accelerometerData, gyroscopeData, stepDetectorData, wifiData, bluetoothData;
-    private LoadingDialog loadingDialog;
+
     private Handler handler;
     private Runnable apiRunnable;
 
@@ -185,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Sensor
         sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-        loadingDialog = new LoadingDialog(MainActivity.this);
         userEmail = getEmailFromSharedPreferences();
 
         sensorManagers = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -536,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void run() {
                 if (isLoggedIn()) {
-                    loadingDialog.show();
                     ApiHelper.saveDataSensor(userEmail, magneticData, temperatureData, proximityData, pressureData,
                             lightData, humidityData, gpsData, networkLocationData, accelerometerData, gyroscopeData,
                             stepDetectorData, wifiData, bluetoothData, new Callback() {
@@ -546,7 +543,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                         @Override
                                         public void run() {
                                             if (response.isSuccessful()) {
-                                                Toasty.success(MainActivity.this, "Save sensor data successfully!", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 try {
                                                     JSONObject errorResponse = new JSONObject(response.body().string());
@@ -557,7 +553,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                                     Toasty.error(MainActivity.this, "Failed to save sensor data.", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
-                                            loadingDialog.dismiss();
                                         }
                                     });
                                 }
@@ -567,8 +562,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            Toasty.error(MainActivity.this, "External sever in SensorsActivity.", Toast.LENGTH_SHORT).show();
-                                            loadingDialog.dismiss();
+                                            Toasty.error(MainActivity.this, "External sever error.", Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 }

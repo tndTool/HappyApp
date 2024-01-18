@@ -17,9 +17,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiHelper {
-    private static final String BASE_URL_VIDEO = "https://happy-app-server.onrender.com/api/";
-    private static final String BASE_URL = "https://happy-app-server.vercel.app/api/";
-//    private static final String BASE_URL = "http://192.168.1.29:5000/api/";
+    private static final String SERVER_URL = "http://192.168.1.20:5000/api/";
 
     public static void registerUser(String name, String email, String password, Callback callback) {
         JSONObject requestBody = new JSONObject();
@@ -35,7 +33,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "register")
+                .url(SERVER_URL + "register")
                 .post(body)
                 .build();
 
@@ -55,7 +53,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "login")
+                .url(SERVER_URL + "login")
                 .post(body)
                 .build();
 
@@ -75,7 +73,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "verify")
+                .url(SERVER_URL + "verify")
                 .post(body)
                 .build();
 
@@ -94,7 +92,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "forgotpassword/sendotp")
+                .url(SERVER_URL + "forgotpassword/sendotp")
                 .post(body)
                 .build();
 
@@ -114,7 +112,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "forgotpassword/verifyotp")
+                .url(SERVER_URL + "forgotpassword/verifyotp")
                 .post(body)
                 .build();
 
@@ -134,7 +132,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "forgotpassword/resetpassword")
+                .url(SERVER_URL + "forgotpassword/resetpassword")
                 .post(body)
                 .build();
 
@@ -153,7 +151,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "resendOtp")
+                .url(SERVER_URL + "resendOtp")
                 .post(body)
                 .build();
 
@@ -164,7 +162,7 @@ public class ApiHelper {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "user/" + email)
+                .url(SERVER_URL + "user/" + email)
                 .get()
                 .build();
 
@@ -184,7 +182,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "user/changename")
+                .url(SERVER_URL + "user/changename")
                 .put(body)
                 .build();
 
@@ -204,7 +202,7 @@ public class ApiHelper {
         RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "user/changepassword")
+                .url(SERVER_URL + "user/changepassword")
                 .post(body)
                 .build();
 
@@ -292,7 +290,7 @@ public class ApiHelper {
             RequestBody body = RequestBody.create(mediaType, requestBody.toString());
 
             Request request = new Request.Builder()
-                    .url(BASE_URL + "sensor/data")
+                    .url(SERVER_URL + "sensor/data")
                     .post(body)
                     .build();
 
@@ -323,7 +321,7 @@ public class ApiHelper {
         RequestBody requestBody = requestBodyBuilder.build();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "camera/behavior")
+                .url(SERVER_URL + "camera/behavior")
                 .post(requestBody)
                 .build();
 
@@ -351,7 +349,7 @@ public class ApiHelper {
         RequestBody requestBody = requestBodyBuilder.build();
 
         Request request = new Request.Builder()
-                .url(BASE_URL_VIDEO + "video/behavior")
+                .url(SERVER_URL + "video/behavior")
                 .post(requestBody)
                 .build();
 
@@ -362,7 +360,7 @@ public class ApiHelper {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "camera/behavior/" + email)
+                .url(SERVER_URL + "camera/behavior/" + email)
                 .get()
                 .build();
 

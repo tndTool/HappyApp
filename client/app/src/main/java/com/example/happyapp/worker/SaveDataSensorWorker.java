@@ -53,7 +53,6 @@ public class SaveDataSensorWorker extends Worker {
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
                             if (response.isSuccessful()) {
-                                showToast("Save sensor data successfully!", Toast.LENGTH_SHORT);
                             } else {
                                 try {
                                     JSONObject errorResponse = new JSONObject(response.body().string());
