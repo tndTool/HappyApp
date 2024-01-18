@@ -50,7 +50,7 @@ Type on terminal:
 cd ../server
 npm install
 --------------------------
-Fill in the .env file information completely according to the path D:\App\HappyApp\server\.env
+Fill in the .env file information completely according to the path ..\HappyApp\server\.env
 --------------------------
 Type on terminal:
 npm start
@@ -62,7 +62,7 @@ Using Android Studio
 -------------------------- 
 Sync Project with Gradle Files (you can use keyboard shortcut: Ctrl + Shift + O)
 --------------------------
-Open the ApiHelper.java file according to the path D:\App\HappyApp\client\app\src\main\java\com\example\happyapp\api
+Open the ApiHelper.java file according to the path ..\HappyApp\client\app\src\main\java\com\example\happyapp\api
 Replace the SERVER_URL link in code (Example: 'http://192.168.1.20:5000/api/' with 192.168.1.20 is IPv4 Address)
 --------------------------
 Open the virtual machine and run the application
