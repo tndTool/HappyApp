@@ -7,10 +7,10 @@
 <h3 style="color:white">Requirement:</h3>
 <ul>
   <li>Authentication: login, register, forget password.</li>
-  <li>Proactive tracking behavior: take photos, record videos and fill in the behavior</li>
-  <li>Automated behavior tracking: collect sensor data on the user's phone</li>
-  <li>View submitted behavior history</li>
-  <li>Profile management: change name, change password, privacy manage, notification manage</li>
+  <li>Proactive tracking behavior: take photos, record videos and fill in the behavior.</li>
+  <li>Automated tracking behavior : collect sensor data on the user's phone.</li>
+  <li>View submitted behavior history.</li>
+  <li>Profile management: change name, change password, privacy manage, notification manage,... .</li>
 </ul>
 <h3 style="color:white">Date: <span style="color:#ccc">15/09/2023 - present</span></h3>
 <h3 style="color:white">Status: <span style="color:#d4edbc">Updating</span></h3>
