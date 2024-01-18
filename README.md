@@ -1,7 +1,7 @@
 <h1>About</h1>
 
 <h3 style="color:white">Topic: <span style="color:#ccc">TRACKING HUMAN BEHAVIOR BY SMARTPHONE</span></h3>
-<h3 style="color:white">Performer: <span style="color:#ccc">Nguyen Duc Toan, Nguyen Duc Trong</span></h3>
+<h3 style="color:white">Builder: <span style="color:#ccc">Nguyen Duc Toan, Nguyen Duc Trong</span></h3>
 <h3 style="color:white">Advisor: <span style="color:#ccc">Ph.D. Phan Thanh Trung </span></h3>
 
 <h3 style="color:white">Requirement:</h3>
